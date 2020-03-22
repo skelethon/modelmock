@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+import random
 
 def array_random_split(arr, n, empty_accepted=False):
   ret = []

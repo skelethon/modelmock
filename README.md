@@ -1,9 +1,15 @@
 # jsonfaker
 
-## Development
+## Installing dependencies
+
+```shell
+python3 -m pip install -r requirements.txt
+```
+
+## Development Guides
 
 Run the unittest:
 
 ```shell
-python tests/units
+python3 tests/units
 ```

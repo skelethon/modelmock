@@ -1,0 +1,2 @@
+numpy
+shortuuid>=1,<2

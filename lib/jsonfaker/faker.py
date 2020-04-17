@@ -5,6 +5,7 @@ from jsonfaker.utils import (
   number_to_id,
   generate_ids,
   shuffle_nodes,
+  list_to_dict,
 )
 
 def generate_agents(total_agents, level_mappings, subpath='record'):
@@ -59,13 +60,6 @@ def assign_levels(super_id, indices, levels):
         ))
         ret = ret + assign_levels(first_index, subchild, levels = levels)
   return ret
-
-
-def list_to_dict(nodes):
-  _map = dict()
-  for node in nodes:
-    _map[node['index']] = node
-  return _map
 
 
 def expand_treemap(nodes):

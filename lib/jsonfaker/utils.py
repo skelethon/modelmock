@@ -28,3 +28,9 @@ def shuffle_nodes(nodes):
   new_nodes = np.array(list(nodes))
   np.random.shuffle(new_nodes)
   return new_nodes
+
+def list_to_dict(nodes):
+  _map = dict()
+  for node in nodes:
+    _map[node['index']] = node
+  return _map

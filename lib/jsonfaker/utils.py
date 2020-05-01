@@ -24,13 +24,16 @@ def number_to_id(number, prefix='A', pad_size=4):
 def generate_ids(max, prefix='A'):
   return map(lambda x: number_to_id(x, prefix), range(max))
 
+
 def shuffle_nodes(nodes):
   new_nodes = np.array(list(nodes))
   np.random.shuffle(new_nodes)
   return new_nodes
 
-def list_to_dict(nodes):
+
+def list_to_dict(nodes, key_name='index'):
   _map = dict()
   for node in nodes:
-    _map[node['index']] = node
+    _map[node[key_name]] = node
   return _map
+

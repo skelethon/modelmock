@@ -87,3 +87,5 @@ def flatten_refs(nodes):
       node['REFS_' + _ref_label] = node['refs'][_ref_label]
     del node['refs']
   return nodes
+
+

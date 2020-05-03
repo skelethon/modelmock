@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import random
 from jsonfaker.utils import (
   array_random_split,
   number_to_id,
@@ -93,3 +94,75 @@ def flatten_refs(nodes):
 # [END generate_agents()]
 
 
+# [BEGIN generate_contracts()]
+
+def generate_contracts(contract_price, total_contracts, total_agents, unit, prefix='CONTR', flatten=True, split=False):
+  # estimate the revenue ~ price * total
+  revenue = contract_price * total_contracts
+  # randomize the prices (length: total_contracts)
+  prices = generate_random_integers(revenue, total_contracts)
+  # generate each contracts
+  contrs = list(map(lambda idx, price: generate_contract(idx, price, unit, prefix, flatten), range(total_contracts), prices))
+  # contrs = list(map(lambda x: generate_contract(x[0], x[1], unit, prefix, flatten), enumerate(prices)))
+  
+  # assign the purchases to agents
+  return assign_purchases(contrs, total_agents)
+
+
+def generate_contract(idx, price, unit, prefix='C', flatten=True):
+    num_extras = random.randint(1, 5)
+    extras = []
+    for idx_extras in range(num_extras):
+      extras.append(dict(
+        fare = random.randint(1,5) * unit,
+        type = random.randint(1,3),
+        duration = random.randint(1, 12),
+      ))
+    _contract = dict(id=number_to_id(idx, prefix, 6), fyp=price * unit, extras=extras)
+    if flatten:
+      return flatten_contract(_contract)
+    return _contract
+
+
+def flatten_contract(contract):
+  _extras = contract['extras']
+  for _i in range(len(_extras)):
+    _extra = _extras[_i]
+    for _f in _extra.keys():
+      contract['extra_' + str(_i) + '_' + str(_f)] = _extra[_f]
+  del contract['extras']
+  return contract
+
+
+def generate_random_integers(_sum, n):
+    mean = _sum // n
+    variance = int(0.5 * mean)
+
+    min_v = mean - variance
+    max_v = mean + variance
+    array = [min_v] * n
+
+    diff = _sum - min_v * n
+    while diff > 0:
+        a = random.randint(0, n - 1)
+        if array[a] >= max_v:
+            continue
+        array[a] += 1
+        diff -= 1
+
+    return array
+
+
+def assign_purchases(contracts, total_agents):
+  # randomize number of contracts per agents
+  num_contracts_per_agents = generate_random_integers(len(contracts), total_agents)
+
+  start = 0
+  for i in range(len(num_contracts_per_agents)):
+    for j in range(num_contracts_per_agents[i]):
+      contracts[start + j]['agent_id'] = number_to_id(i)
+    start = start + num_contracts_per_agents[i]
+
+  return contracts
+
+# [END generate_contracts()]

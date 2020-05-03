@@ -8,6 +8,8 @@ from jsonfaker.utils import (
   list_to_dict,
 )
 
+# [BEGIN generate_agents()]
+
 def generate_agents(total_agents, level_mappings, subpath='record'):
   _records = shuffle_nodes(flatten_refs(expand_treemap(assign_levels(None,
       indices=list(shuffle_nodes(generate_ids(total_agents, 'A'))),
@@ -87,5 +89,7 @@ def flatten_refs(nodes):
       node['REFS_' + _ref_label] = node['refs'][_ref_label]
     del node['refs']
   return nodes
+
+# [END generate_agents()]
 
 

@@ -7,6 +7,7 @@ from jsonfaker.utils import (
   generate_ids,
   shuffle_nodes,
   list_to_dict,
+  random_fixed_sum_array,
 )
 
 # [BEGIN generate_agents()]
@@ -100,7 +101,7 @@ def generate_contracts(contract_price, total_contracts, total_agents, unit, pref
   # estimate the revenue ~ price * total
   revenue = contract_price * total_contracts
   # randomize the prices (length: total_contracts)
-  prices = generate_random_integers(revenue, total_contracts)
+  prices = random_fixed_sum_array(revenue, total_contracts)
   # generate each contracts
   contrs = list(map(lambda idx, price: generate_contract(idx, price, unit, prefix, flatten), range(total_contracts), prices))
   # contrs = list(map(lambda x: generate_contract(x[0], x[1], unit, prefix, flatten), enumerate(prices)))
@@ -134,28 +135,9 @@ def flatten_contract(contract):
   return contract
 
 
-def generate_random_integers(_sum, n):
-    mean = _sum // n
-    variance = int(0.5 * mean)
-
-    min_v = mean - variance
-    max_v = mean + variance
-    array = [min_v] * n
-
-    diff = _sum - min_v * n
-    while diff > 0:
-        a = random.randint(0, n - 1)
-        if array[a] >= max_v:
-            continue
-        array[a] += 1
-        diff -= 1
-
-    return array
-
-
 def assign_purchases(contracts, total_agents):
   # randomize number of contracts per agents
-  num_contracts_per_agents = generate_random_integers(len(contracts), total_agents)
+  num_contracts_per_agents = random_fixed_sum_array(len(contracts), total_agents)
 
   start = 0
   for i in range(len(num_contracts_per_agents)):

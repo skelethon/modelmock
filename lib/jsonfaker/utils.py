@@ -37,3 +37,21 @@ def list_to_dict(nodes, key_name='index'):
     _map[node[key_name]] = node
   return _map
 
+
+def random_fixed_sum_array(_sum, n):
+    mean = _sum // n
+    variance = int(0.5 * mean)
+
+    min_v = mean - variance
+    max_v = mean + variance
+    array = [min_v] * n
+
+    diff = _sum - min_v * n
+    while diff > 0:
+        a = random.randint(0, n - 1)
+        if array[a] >= max_v:
+            continue
+        array[a] += 1
+        diff -= 1
+
+    return array

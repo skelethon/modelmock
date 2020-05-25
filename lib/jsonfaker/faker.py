@@ -3,6 +3,7 @@
 import random
 from jsonfaker.utils import (
   array_random_split,
+  chunkify,
   number_to_id,
   generate_ids,
   shuffle_nodes,
@@ -97,7 +98,7 @@ def flatten_refs(nodes):
 
 # [BEGIN generate_contracts()]
 
-def generate_contracts(contract_price, total_contracts, total_agents, unit, prefix='CONTR', flatten=True, split=False):
+def generate_contracts(contract_price, total_contracts, total_agents, unit, prefix='CONTR', flatten=True, chunky=None):
   # estimate the revenue ~ price * total
   revenue = contract_price * total_contracts
   # randomize the prices (length: total_contracts)
@@ -107,11 +108,29 @@ def generate_contracts(contract_price, total_contracts, total_agents, unit, pref
   # contrs = list(map(lambda x: generate_contract(x[0], x[1], unit, prefix, flatten), enumerate(prices)))
   
   # assign the purchases to agents
-  return assign_purchases(contrs, total_agents)
+  _purchases = assign_purchases(contrs, total_agents)
+
+  _chunks = _purchases
+  if chunky is not None:
+    if chunky <= 0:
+      # randomize number of contracts per chunk
+      num_contracts_per_chunk = generate_random_integers(total_contracts, total_agents)
+      # splits contracts list into chunks
+      _chunks = []
+      start = 0
+      for n in num_contracts_per_chunk:
+        _chunks.append(contrs[start:start + n])
+        start = start + n
+      # return the chunks
+      return _chunks
+    else:
+      return chunkify(_purchases, chunky)
+
+  return _purchases
 
 
-def generate_contract(idx, price, unit, prefix='C', flatten=True):
-    num_extras = random.randint(1, 5)
+def generate_contract(idx, price, unit, prefix='C', max_extras=5, flatten=True):
+    num_extras = random.randint(1, max_extras)
     extras = []
     for idx_extras in range(num_extras):
       extras.append(dict(

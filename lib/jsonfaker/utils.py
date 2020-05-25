@@ -55,3 +55,10 @@ def random_fixed_sum_array(_sum, n):
         diff -= 1
 
     return array
+
+def chunkify(array, size):
+  """
+  Yield successive fixed n-length chunks from an array.
+  """
+  for i in range(0, len(array), size):
+      yield array[i:i + size]

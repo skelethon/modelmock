@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../lib')
 
 from pprint import pprint
 
-from jsonfaker.faker import generate_agents
+from modelmock.faker import generate_agents
 
 if True:
   pprint(list(generate_agents(10,

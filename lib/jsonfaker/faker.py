@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import random
-from jsonfaker.utils import (
+from modelmock.utils import (
   array_random_split,
   chunkify,
   number_to_id,

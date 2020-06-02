@@ -1,4 +1,4 @@
-# jsonfaker
+# modelmock
 
 ## Installing dependencies
 

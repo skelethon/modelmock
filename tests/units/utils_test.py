@@ -5,7 +5,7 @@ import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../lib')
 
-from jsonfaker.utils import array_random_split
+from modelmock.utils import array_random_split
 
 class array_random_split_test(unittest.TestCase):
 

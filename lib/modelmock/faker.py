@@ -104,7 +104,7 @@ def generate_contracts(contract_price, total_contracts, total_agents, unit, pref
   # randomize the prices (length: total_contracts)
   prices = random_fixed_sum_array(revenue, total_contracts)
   # generate each contracts
-  contrs = list(map(lambda idx, price: generate_contract(idx, price, unit, prefix, flatten), range(total_contracts), prices))
+  contrs = list(map(lambda idx, price: generate_contract(idx, price, unit, prefix=prefix, flatten=flatten), range(total_contracts), prices))
   # contrs = list(map(lambda x: generate_contract(x[0], x[1], unit, prefix, flatten), enumerate(prices)))
   
   # assign the purchases to agents
@@ -129,15 +129,18 @@ def generate_contracts(contract_price, total_contracts, total_agents, unit, pref
   return _purchases
 
 
-def generate_contract(idx, price, unit, prefix='C', max_extras=5, flatten=True):
+def generate_contract(idx, price, unit, prefix='C', max_extras=5, flatten=True, extra_generator=None):
     num_extras = random.randint(1, max_extras)
-    extras = []
-    for idx_extras in range(num_extras):
-      extras.append(dict(
-        fare = random.randint(1,5) * unit,
-        type = random.randint(1,3),
-        duration = random.randint(1, 12),
-      ))
+    if extra_generator is None:
+      extras = []
+      for idx_extras in range(num_extras):
+        extras.append(dict(
+          fare = random.randint(1,5) * unit,
+          type = random.randint(1,3),
+          duration = random.randint(1, 12),
+        ))
+    else:
+      extras = map(extra_generator, range(num_extras))
     _contract = dict(id=number_to_id(idx, prefix, 6), fyp=price * unit, extras=extras)
     if flatten:
       return flatten_contract(_contract)

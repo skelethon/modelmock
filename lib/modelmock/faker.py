@@ -87,11 +87,12 @@ def expand_treemap(nodes):
   return nodes
 
 
-def flatten_refs(nodes):
+def flatten_refs(nodes, subdict_name='refs', prefix='REFS'):
   for node in nodes:
-    for _ref_label in node['refs'].keys():
-      node['REFS_' + _ref_label] = node['refs'][_ref_label]
-    del node['refs']
+    if subdict_name in node and isinstance(node[subdict_name], dict):
+      for _ref_label in node[subdict_name].keys():
+        node[prefix + '_' + _ref_label] = node[subdict_name][_ref_label]
+      del node[subdict_name]
   return nodes
 
 # [END generate_agents()]

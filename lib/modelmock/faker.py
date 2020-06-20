@@ -8,6 +8,7 @@ from modelmock.utils import (
   generate_ids,
   shuffle_nodes,
   list_to_dict,
+  flatten_sub_list,
   random_fixed_sum_array,
 )
 
@@ -145,20 +146,6 @@ def generate_contract(idx, price, unit, prefix='C', max_extras=5, flatten=True, 
     if flatten:
       return flatten_sub_list(_contract)
     return _contract
-
-
-def flatten_sub_list(contract, list_name='extras', prefix='extra'):
-  if not isinstance(contract, dict):
-    return contract
-  if list_name not in contract or not isinstance(contract[list_name], list):
-    return contract
-  _extras = contract[list_name]
-  for _i in range(len(_extras)):
-    _extra = _extras[_i]
-    for _f in _extra.keys():
-      contract['_'.join([prefix, str(_i), str(_f)])] = _extra[_f]
-  del contract[list_name]
-  return contract
 
 
 def assign_purchases(contracts, total_agents):

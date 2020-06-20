@@ -34,3 +34,10 @@ class flatten_contract_test(unittest.TestCase):
   def test_flatten_contract_extras_is_empty(self):
     _contract = dict(period=15, extras=[])
     self.assertEqual(flatten_contract(_contract), {'period': 15})
+
+  def test_flatten_contract_extras_not_found(self):
+    _contract = dict(period=15)
+    self.assertEqual(flatten_contract(_contract), {'period': 15})
+
+  def test_flatten_contract_extras_is_undefined(self):
+    self.assertIsNone(flatten_contract(None), None)

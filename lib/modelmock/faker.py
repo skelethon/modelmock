@@ -147,13 +147,17 @@ def generate_contract(idx, price, unit, prefix='C', max_extras=5, flatten=True, 
     return _contract
 
 
-def flatten_contract(contract):
-  _extras = contract['extras']
+def flatten_contract(contract, list_name='extras', prefix='extra'):
+  if not isinstance(contract, dict):
+    return contract
+  if list_name not in contract or not isinstance(contract[list_name], list):
+    return contract
+  _extras = contract[list_name]
   for _i in range(len(_extras)):
     _extra = _extras[_i]
     for _f in _extra.keys():
-      contract['extra_' + str(_i) + '_' + str(_f)] = _extra[_f]
-  del contract['extras']
+      contract['_'.join([prefix, str(_i), str(_f)])] = _extra[_f]
+  del contract[list_name]
   return contract
 
 

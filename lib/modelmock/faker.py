@@ -114,7 +114,7 @@ def generate_contracts(contract_price, total_contracts, total_agents, unit, pref
   if chunky is not None:
     if chunky <= 0:
       # randomize number of contracts per chunk
-      num_contracts_per_chunk = generate_random_integers(total_contracts, total_agents)
+      num_contracts_per_chunk = random_fixed_sum_array(total_contracts, total_agents)
       # splits contracts list into chunks
       _chunks = []
       start = 0
@@ -143,11 +143,11 @@ def generate_contract(idx, price, unit, prefix='C', max_extras=5, flatten=True, 
       extras = map(extra_generator, range(num_extras))
     _contract = dict(id=number_to_id(idx, prefix, 6), fyp=price * unit, extras=extras)
     if flatten:
-      return flatten_contract(_contract)
+      return flatten_sub_list(_contract)
     return _contract
 
 
-def flatten_contract(contract, list_name='extras', prefix='extra'):
+def flatten_sub_list(contract, list_name='extras', prefix='extra'):
   if not isinstance(contract, dict):
     return contract
   if list_name not in contract or not isinstance(contract[list_name], list):

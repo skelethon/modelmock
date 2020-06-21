@@ -57,6 +57,17 @@ def random_fixed_sum_array(_sum, n):
     return array
 
 
+def flatten_sub_dict(nodes, subdict_name='refs', prefix='REFS'):
+  if not isinstance(nodes, list):
+    return nodes
+  for node in nodes:
+    if isinstance(node, dict) and subdict_name in node and isinstance(node[subdict_name], dict):
+      for _ref_label in node[subdict_name].keys():
+        node[prefix + '_' + _ref_label] = node[subdict_name][_ref_label]
+      del node[subdict_name]
+  return nodes
+
+
 def flatten_sub_list(contract, list_name='extras', prefix='extra'):
   if not isinstance(contract, dict):
     return contract

@@ -8,6 +8,7 @@ from modelmock.utils import (
   generate_ids,
   shuffle_nodes,
   list_to_dict,
+  flatten_sub_dict,
   flatten_sub_list,
   random_fixed_sum_array,
 )
@@ -15,9 +16,15 @@ from modelmock.utils import (
 # [BEGIN generate_agents()]
 
 def generate_agents(total_agents, level_mappings, subpath='record'):
-  _records = shuffle_nodes(flatten_refs(expand_treemap(assign_levels(None,
-      indices=list(shuffle_nodes(generate_ids(total_agents, 'A'))),
-      levels=level_mappings))))
+  _records = shuffle_nodes(
+    flatten_sub_dict(
+      expand_treemap(
+        assign_levels(None,
+          indices=list(shuffle_nodes(generate_ids(total_agents, 'A'))),
+          levels=level_mappings)
+      )
+    )
+  )
   if isinstance(subpath, str):
     return map(lambda item: { subpath: item }, _records)
   else:
@@ -84,15 +91,6 @@ def expand_treemap(nodes):
     for ref_label in _super_refs.keys():
       node['refs'][ref_label] = _super_refs[ref_label]
 
-  return nodes
-
-
-def flatten_refs(nodes, subdict_name='refs', prefix='REFS'):
-  for node in nodes:
-    if subdict_name in node and isinstance(node[subdict_name], dict):
-      for _ref_label in node[subdict_name].keys():
-        node[prefix + '_' + _ref_label] = node[subdict_name][_ref_label]
-      del node[subdict_name]
   return nodes
 
 # [END generate_agents()]

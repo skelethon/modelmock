@@ -20,3 +20,10 @@ class generate_agents_test(unittest.TestCase):
         {'level': 'C'}
     ]))
     self.assertEqual(len(_agents), 6)
+
+    _counts = dict(A=0,B=0,C=0)
+    for _agent in _agents:
+      _counts[_agent['record']['level']] = _counts[_agent['record']['level']] + 1
+
+    self.assertEqual(_counts, dict(A=1,B=2,C=3))
+

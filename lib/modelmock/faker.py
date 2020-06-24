@@ -18,7 +18,7 @@ from modelmock.utils import (
 def generate_agents(total_agents, level_mappings, subpath='record'):
   _records = shuffle_nodes(
     flatten_sub_dict(
-      expand_treemap(
+      expand_tree_path(
         assign_levels(None,
           indices=list(shuffle_nodes(generate_ids(total_agents, 'A'))),
           levels=level_mappings)
@@ -75,21 +75,21 @@ def assign_levels(super_id, indices, levels):
   return ret
 
 
-def expand_treemap(nodes):
+def expand_tree_path(nodes, index_name='index', level_name='level', super_name='super', prior_list='refs'):
   _lkup = list_to_dict(nodes)
   for node in nodes:
-    node['refs'] = dict()
-    node['refs'][node['level']] = node['index']
+    node[prior_list] = dict()
+    node[prior_list][node[level_name]] = node[index_name]
 
-    _super_id = node['super']
+    _super_id = node[super_name]
     if _super_id is None:
       continue
 
     _super = _lkup[_super_id]
-    _super_refs = _super['refs']
+    _super_refs = _super[prior_list]
 
     for ref_label in _super_refs.keys():
-      node['refs'][ref_label] = _super_refs[ref_label]
+      node[prior_list][ref_label] = _super_refs[ref_label]
 
   return nodes
 

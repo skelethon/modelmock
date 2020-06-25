@@ -98,7 +98,7 @@ def expand_tree_path(nodes, index_name='index', level_name='level', super_name='
 
 # [BEGIN generate_contracts()]
 
-def generate_contracts(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
+def generate_contracts(total_contracts, contract_price, unit, id_prefix='CONTR', id_padding=6, flatten=True):
   # estimate the revenue ~ price * total
   revenue = contract_price * total_contracts
 
@@ -112,8 +112,18 @@ def generate_contracts(contract_price, total_contracts, total_agents, unit, id_p
   contrs = list(map(lambda idx, price: generate_contract(idx, price, **_args_tail), range(total_contracts), prices))
   # contrs = list(map(lambda x: generate_contract(x[0], x[1], unit, prefix, flatten), enumerate(prices)))
 
-  # assign the purchases to agents
-  _purchases = assign_purchases(contrs, total_agents)
+  return contrs
+
+
+def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
+  # generate the contracts
+  _contracts = generate_contracts(total_contracts, contract_price, unit,
+      id_prefix=id_prefix,
+      id_padding=id_padding,
+      flatten=flatten)
+
+  # assign the contracts to agents
+  _purchases = assign_purchases(_contracts, total_agents)
 
   # contracts list should be splitted into chunks?
   if chunky is not None:
@@ -124,7 +134,7 @@ def generate_contracts(contract_price, total_contracts, total_agents, unit, id_p
       _chunks = []
       start = 0
       for n in num_contracts_per_chunk:
-        _chunks.append(contrs[start:start + n])
+        _chunks.append(_contracts[start:start + n])
         start = start + n
       # return the chunks
       return _chunks

@@ -17,12 +17,13 @@ def array_random_split(arr, n, empty_accepted=False):
       arr_len = len(arr)
   return ret
 
-def number_to_id(number, prefix='A', pad_size=4):
-  return prefix + '_' + str(number).zfill(pad_size)
+
+def number_to_id(number, prefix='A', padding=4):
+  return prefix + '_' + str(number).zfill(padding)
 
 
-def generate_ids(max, prefix='A'):
-  return map(lambda x: number_to_id(x, prefix), range(max))
+def generate_ids(max, prefix='A', padding=4):
+  return map(lambda x: number_to_id(x, prefix=prefix, padding=padding), range(max))
 
 
 def shuffle_nodes(nodes):

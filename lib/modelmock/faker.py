@@ -100,48 +100,19 @@ def expand_tree_path(nodes, index_name='index', level_name='level', super_name='
 
 def generate_contracts(total_contracts, contract_price, unit, id_prefix='CONTR', id_padding=6, flatten=True):
   # estimate the revenue ~ price * total
-  revenue = contract_price * total_contracts
+  _revenue = contract_price * total_contracts
 
   # randomize the prices (length: total_contracts)
-  prices = random_fixed_sum_array(revenue, total_contracts)
+  _prices = random_fixed_sum_array(_revenue, total_contracts)
 
   # common kwargs
   _args_tail = dict(unit=unit, id_prefix=id_prefix, id_padding=id_padding, flatten=flatten)
 
   # generate each contracts
-  contrs = list(map(lambda idx, price: generate_contract(idx, price, **_args_tail), range(total_contracts), prices))
-  # contrs = list(map(lambda x: generate_contract(x[0], x[1], unit, prefix, flatten), enumerate(prices)))
+  _contracts = list(map(lambda idx, price: generate_contract(idx, price, **_args_tail), range(total_contracts), _prices))
+  # _contracts = list(map(lambda x: generate_contract(x[0], x[1], unit, prefix, flatten), enumerate(_prices)))
 
-  return contrs
-
-
-def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
-  # generate the contracts
-  _contracts = generate_contracts(total_contracts, contract_price, unit,
-      id_prefix=id_prefix,
-      id_padding=id_padding,
-      flatten=flatten)
-
-  # assign the contracts to agents
-  _purchases = assign_purchases(_contracts, total_agents)
-
-  # contracts list should be splitted into chunks?
-  if chunky is not None:
-    if chunky <= 0:
-      # randomize number of contracts per chunk
-      num_contracts_per_chunk = random_fixed_sum_array(total_contracts, total_agents)
-      # splits contracts list into chunks
-      _chunks = []
-      start = 0
-      for n in num_contracts_per_chunk:
-        _chunks.append(_contracts[start:start + n])
-        start = start + n
-      # return the chunks
-      return _chunks
-    else:
-      return chunkify(_purchases, chunky)
-
-  return _purchases
+  return _contracts
 
 
 def generate_contract(idx, price, unit, id_prefix='C', id_padding=6, max_extras=5, flatten=True, extra_generator=None):
@@ -160,6 +131,23 @@ def generate_contract(idx, price, unit, id_prefix='C', id_padding=6, max_extras=
     if flatten:
       return flatten_sub_list(_contract)
     return _contract
+
+
+def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
+  # generate the contracts
+  _contracts = generate_contracts(total_contracts, contract_price, unit,
+      id_prefix=id_prefix,
+      id_padding=id_padding,
+      flatten=flatten)
+
+  # assign the contracts to agents
+  _purchases = assign_purchases(_contracts, total_agents)
+
+  # contracts list should be splitted into chunks?
+  if isinstance(chunky, int) and chunky > 0:
+    return chunkify(_purchases, chunky)
+
+  return _purchases
 
 
 def assign_purchases(contracts, total_agents):

@@ -49,33 +49,33 @@ class provider:
             'Ý',
         )
     last_names = (
-            'An', 'Ánh',
-            'Ân', 'Âu', 'Ấu',
-            'Biện', 'Bàng', 'Bành', 'Bá', 'Bì', 'Bình', 'Bùi', 'Bạc', 'Bạch', 'Bảo', 'Bế', 'Bồ', 'Bửu',
-            'Ca', 'Cam', 'Cao', 'Chiêm', 'Chu', 'Chung', 'Châu', 'Chương', 'Chế', 'Chử', 'Cung', 'Cái', 'Cát', 'Cù', 'Cấn', 'Cầm', 'Cổ', 'Cự',
+            'Biện', 'Bàng', 'Bành', 'Bá', 'Bình', 'Bùi', 'Bạc', 'Bạch', 'Bảo', 'Bế', 'Bồ', 'Bửu',
+            'Cam', 'Cao', 'Chiêm', 'Chu', 'Chung', 'Châu', 'Chế', 'Chử', 'Cù', 'Cấn', 'Cầm', 'Cổ', 'Cự',
             'Danh', 'Diêm', 'Diệp', 'Doãn', 'Dã', 'Dư', 'Dương',
-            'Đan', 'Đàm', 'Đào', 'Đái', 'Đặng', 'Đậu', 'Đinh', 'Điền', 'Đoàn', 'Đôn', 'Đồng', 'Đổng', 'Đỗ', 'Đới', 'Đường',
+            'Đan', 'Đàm', 'Đào', 'Đặng', 'Đậu', 'Đinh', 'Điền', 'Đoàn', 'Đôn', 'Đồng', 'Đổng', 'Đỗ', 'Đới', 'Đường',
             'Giang', 'Giao', 'Giáp', 'Giả',
-            'Hoa', 'Hoàng', 'Huỳnh', 'Hy', 'Hà', 'Hàn', 'Hàng', 'Hán', 'Hình', 'Hùng', 'Hạ', 'Hồ', 'Hồng', 'Hứa',
+            'Hoa', 'Hoàng', 'Huỳnh', 'Hà', 'Hàn', 'Hàng', 'Hán', 'Hạ', 'Hồ', 'Hứa',
             'Kha', 'Khoa', 'Khu', 'Khuất', 'Khâu', 'Khúc', 'Khưu', 'Khương', 'Khổng', 'Kim', 'Kiều',
             'La', 'Liễu', 'Lâm', 'Lã', 'Lê', 'Lò', 'Lô', 'Lý', 'Lư', 'Lưu', 'Lương', 'Lạc', 'Lại', 'Lều', 'Lỡ', 'Lục', 'Lữ', 'Lỳ',
-            'Ma', 'Mai', 'Mang', 'Mâu', 'Mã', 'Mạc', 'Mạch', 'Mẫn', 'Mộc',
-            'Nghiêm', 'Nghị', 'Nguyễn', 'Ngân', 'Ngô', 'Ngụy', 'Nhiệm', 'Nhâm', 'Nhậm', 'Nhữ', 'Ninh', 'Nông',
+            'Ma', 'Mai', 'Mang', 'Mã', 'Mạc', 'Mạch', 'Mộc',
+            'Nghiêm', 'Nghị', 'Nguyễn', 'Ngô', 'Ngụy', 'Nhiệm', 'Nhậm', 'Nhữ', 'Ninh', 'Nông',
+            'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn',
+            'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn', 'Nguyễn',
             'Ong',
             'Ông',
-            'Phan', 'Phi', 'Phí', 'Phó', 'Phùng', 'Phương', 'Phạm',
+            'Phan', 'Phi', 'Phí', 'Phó', 'Phùng', 'Phương', 'Phạm', 'Phan',
             'Quách', 'Quản',
-            'Sơn', 'Sử',
-            'Thi', 'Thiều', 'Thào', 'Thái', 'Thân', 'Thôi', 'Thạch', 'Thập', 'Thịnh', 'Tiêu', 'Tiếp', 'Trang', 'Triệu', 'Trà', 'Trác', 'Trình', 'Trưng', 'Trương', 'Trần', 'Trịnh', 'Ty', 'Tào', 'Tòng', 'Tô', 'Tôn', 'Tông', 'Tăng', 'Tạ', 'Tống', 'Từ',
+            'Sử',
+            'Thiều', 'Thào', 'Thái', 'Thân', 'Thôi', 'Thạch', 'Tiêu', 'Triệu', 'Trà', 'Trác', 'Trình', 'Trưng', 'Trương', 'Trần', 'Trịnh', 'Tào', 'Tòng', 'Tô', 'Tôn', 'Tăng', 'Tạ', 'Tống',
+            'Trần', 'Trần', 'Trần', 'Trần', 'Trần', 'Trần', 'Trần', 'Trần', 'Trần', 'Trần',
             'Ung', 'Uông',
             'Vi', 'Viên', 'Võ', 'Văn', 'Vũ', 'Vương', 'Vừ', 'Xa',
             'Yên',
         )
-    middle_name =["Thị","Đỗ","Như","Mai","Hữu","Văn"]
+    middle_name_male = ["Hữu", "Văn", "Ngọc", "Thanh"]
+    middle_name_female = ["Thị", "Như", "Mai", "Thu", "Thanh"]
     phone = ['+843','+845','+847','+848','+849','03','05','07','08','09']
-    free_email_domains = (
-            'icloud.com','gmail.com', 'yahoo.com', 'hotmail.com',
-        )
+    free_email_domains = ('icloud.com','gmail.com', 'yahoo.com', 'hotmail.com')
     alphabet = list('abcdefghijklmnopqrstuvwxyz0123456789')#ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     header = list('pqrstdfghjklmnbcxzw')
     prefix = list('aeiouy')

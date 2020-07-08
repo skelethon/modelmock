@@ -1,2 +1,3 @@
 numpy
 shortuuid>=1,<2
+unidecode

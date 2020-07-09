@@ -98,3 +98,11 @@ def isiterable(obj):
     return False
   else:
     return True
+
+
+def generatorify(nodes, cloned=True):
+  for node in nodes:
+    if cloned and isinstance(node, dict):
+      yield node.copy()
+    else:
+      yield node

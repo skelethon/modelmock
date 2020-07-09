@@ -6,6 +6,7 @@ from modelmock.utils import (
   chunkify,
   number_to_id,
   generate_ids,
+  generatorify,
   shuffle_nodes,
   list_to_dict,
   flatten_sub_dict,
@@ -19,10 +20,12 @@ from modelmock.user_info import Generator as UserGenerator
 def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4):
   _records = UserGenerator().inject_user_info(
     flatten_sub_dict(
-      expand_tree_path(
-        assign_levels(None,
-          indices=list(shuffle_nodes(generate_ids(total_agents, prefix=id_prefix, padding=id_padding))),
-          levels=level_mappings)
+      generatorify(
+        expand_tree_path(
+          assign_levels(None,
+            indices=list(shuffle_nodes(generate_ids(total_agents, prefix=id_prefix, padding=id_padding))),
+            levels=level_mappings)
+        )
       )
     )
   )

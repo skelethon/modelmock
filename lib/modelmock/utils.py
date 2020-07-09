@@ -40,33 +40,33 @@ def list_to_dict(nodes, key_name='index'):
 
 
 def random_fixed_sum_array(_sum, n):
-    mean = _sum // n
-    variance = int(0.5 * mean)
+  mean = _sum // n
+  variance = int(0.5 * mean)
 
-    min_v = mean - variance
-    max_v = mean + variance
-    array = [min_v] * n
+  min_v = mean - variance
+  max_v = mean + variance
+  array = [min_v] * n
 
-    diff = _sum - min_v * n
-    while diff > 0:
-        a = random.randint(0, n - 1)
-        if array[a] >= max_v:
-            continue
-        array[a] += 1
-        diff -= 1
+  diff = _sum - min_v * n
+  while diff > 0:
+    a = random.randint(0, n - 1)
+    if array[a] >= max_v:
+      continue
+    array[a] += 1
+    diff -= 1
 
-    return array
+  return array
 
 
 def flatten_sub_dict(nodes, subdict_name='refs', prefix='REFS'):
-  if not isinstance(nodes, list):
+  if not isiterable(nodes):
     return nodes
   for node in nodes:
     if isinstance(node, dict) and subdict_name in node and isinstance(node[subdict_name], dict):
       for _ref_label in node[subdict_name].keys():
         node[prefix + '_' + _ref_label] = node[subdict_name][_ref_label]
       del node[subdict_name]
-  return nodes
+    yield node
 
 
 def flatten_sub_list(contract, list_name='extras', prefix='extra'):
@@ -88,4 +88,13 @@ def chunkify(array, size):
   Yield successive fixed n-length chunks from an array.
   """
   for i in range(0, len(array), size):
-      yield array[i:i + size]
+    yield array[i:i + size]
+
+
+def isiterable(obj):
+  try:
+    iter(obj)
+  except Exception:
+    return False
+  else:
+    return True

@@ -9,7 +9,7 @@ from modelmock.utils import shuffle_nodes
 _demo = os.environ.get('MODELMOCK_DEMO_GEN_AGENTS', '1')
 
 if _demo == '1':
-  pprint(list(shuffle_nodes(generate_agents(10,
+  pprint(list(shuffle_nodes(generate_agents(100,
       [
         {'level': 'ND', 'count': 1},
         {'level': 'RD', 'count': 2},

@@ -114,10 +114,7 @@ def generate_contracts(total_contracts, contract_price, unit, id_prefix='CONTR',
   _args_tail = dict(unit=unit, id_prefix=id_prefix, id_padding=id_padding, flatten=flatten)
 
   # generate each contracts
-  _contracts = list(map(lambda idx, price: generate_contract(idx, price, **_args_tail), range(total_contracts), _prices))
-  # _contracts = list(map(lambda x: generate_contract(x[0], x[1], unit, prefix, flatten), enumerate(_prices)))
-
-  return _contracts
+  return map(lambda idx, price: generate_contract(idx, price, **_args_tail), range(total_contracts), _prices)
 
 
 def generate_contract(idx, price, unit, id_prefix='C', id_padding=6, max_extras=5, flatten=True, extra_generator=None):
@@ -145,26 +142,18 @@ def generate_purchases(contract_price, total_contracts, total_agents, unit, id_p
       id_padding=id_padding,
       flatten=flatten)
 
-  # assign the contracts to agents
-  _purchases = assign_purchases(_contracts, total_agents)
+  def assign_contract_to_agent(contract, agent_id):
+    contract['agent_id'] = agent_id
+    return contract
 
-  # contracts list should be splitted into chunks?
-  if isinstance(chunky, int) and chunky > 0:
-    return chunkify(_purchases, chunky)
+  def select_agent_for_contract(total_contracts, total_agents):
+    # assign the contracts to agents
+    num_contracts_per_agents = random_fixed_sum_array(total_contracts, total_agents)
 
-  return _purchases
+    for i in range(len(num_contracts_per_agents)):
+      for j in range(num_contracts_per_agents[i]):
+        yield number_to_id(i)
 
-
-def assign_purchases(contracts, total_agents):
-  # randomize number of contracts per agents
-  num_contracts_per_agents = random_fixed_sum_array(len(contracts), total_agents)
-
-  start = 0
-  for i in range(len(num_contracts_per_agents)):
-    for j in range(num_contracts_per_agents[i]):
-      contracts[start + j]['agent_id'] = number_to_id(i)
-    start = start + num_contracts_per_agents[i]
-
-  return contracts
+  return map(assign_contract_to_agent, _contracts, select_agent_for_contract(total_contracts, total_agents))
 
 # [END generate_contracts()]

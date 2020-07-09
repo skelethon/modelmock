@@ -57,4 +57,4 @@ class Generator(object):
   def inject_user_info(self, nodes):
     for node in nodes:
       node.update(self._generate())
-    return nodes
+      yield node

@@ -17,17 +17,16 @@ from modelmock.user_info import Generator as UserGenerator
 # [BEGIN generate_agents()]
 
 def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4):
-  _records = shuffle_nodes(
-    UserGenerator().inject_user_info(
-      flatten_sub_dict(
-        expand_tree_path(
-          assign_levels(None,
-            indices=list(shuffle_nodes(generate_ids(total_agents, prefix=id_prefix, padding=id_padding))),
-            levels=level_mappings)
-        )
+  _records = UserGenerator().inject_user_info(
+    flatten_sub_dict(
+      expand_tree_path(
+        assign_levels(None,
+          indices=list(shuffle_nodes(generate_ids(total_agents, prefix=id_prefix, padding=id_padding))),
+          levels=level_mappings)
       )
     )
   )
+
   if isinstance(subpath, str):
     return map(lambda item: { subpath: item }, _records)
   else:

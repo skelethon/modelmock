@@ -1,15 +1,24 @@
 #!/usr/bin/env python
 
 import numpy as np
+from modelmock.user_info.data import default_personal_lookup
 from unidecode import unidecode
+
+SEED_PACKAGE_PREFIX = 'modelmock.user_info.data.__seeds_'
 
 class Generator(object):
 
   def __init__(self, **kwargs):
     self.__uniqset_emails = []
     self.__uniqset_phones = []
-    _seeds_collection = __import__('modelmock.user_info.__seeds', None, locals(), ['provider'], 0)
-    self.__faker_seeds = _seeds_collection.provider
+    self.__language = kwargs['language'] if 'language' in kwargs else 'vi_VN'
+
+    try:
+      _seeds_collection = __import__(SEED_PACKAGE_PREFIX + self.__language, None, locals(), ['personal_lookup'], 0)
+      self.__faker_seeds = _seeds_collection.personal_lookup
+    except ModuleNotFoundError as not_found_err:
+      self.__faker_seeds = default_personal_lookup
+    assert self.__faker_seeds is not None
 
 
   def _generate(self):

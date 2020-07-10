@@ -17,8 +17,8 @@ from modelmock.user_info import Generator as UserGenerator
 
 # [BEGIN generate_agents()]
 
-def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4):
-  _records = UserGenerator().inject_user_info(
+def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='vi_VN'):
+  _records = UserGenerator(language=language).inject_user_info(
     flatten_sub_dict(
       generatorify(
         expand_tree_path(

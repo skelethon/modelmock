@@ -19,7 +19,8 @@ if _demo == '1':
         {'level': 'SM', 'min': 2, 'max': 10},
         {'level': 'ST', 'count': 0},
         {'level': 'SA', 'count': 0}
-      ]))))
+      ],
+      language='vi_VN'))))
 
 if _demo == '2':
   pprint(list(shuffle_nodes(generate_agents(7,

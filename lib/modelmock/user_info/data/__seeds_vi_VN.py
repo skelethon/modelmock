@@ -1,4 +1,4 @@
-class provider:
+class personal_lookup:
     first_names_male = (
             'An', 'Anh',
             'Bào', 'Bình', 'Bạch', 'Bảo', 'Bắc', 'Bằng', 'Bổng', 'Bửu',
@@ -72,11 +72,9 @@ class provider:
             'Vi', 'Viên', 'Võ', 'Văn', 'Vũ', 'Vương', 'Vừ', 'Xa',
             'Yên',
         )
+
     middle_name_male = ["Hữu", "Văn", "Ngọc", "Thanh"]
     middle_name_female = ["Thị", "Như", "Mai", "Thu", "Thanh"]
+
     phone = ['+843','+845','+847','+848','+849','03','05','07','08','09']
     free_email_domains = ('icloud.com','gmail.com', 'yahoo.com', 'hotmail.com')
-    alphabet = list('abcdefghijklmnopqrstuvwxyz0123456789')#ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
-    header = list('pqrstdfghjklmnbcxzw')
-    prefix = list('aeiouy')
-    tailer = list('0123456789')

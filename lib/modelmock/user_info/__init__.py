@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import importlib
 import numpy as np
 from modelmock.user_info.data import default_personal_lookup
 from unidecode import unidecode
@@ -14,7 +15,7 @@ class Generator(object):
     self.__language = kwargs['language'] if 'language' in kwargs else 'vi_VN'
 
     try:
-      _seeds_collection = __import__(SEED_PACKAGE_PREFIX + self.__language, None, locals(), ['personal_lookup'], 0)
+      _seeds_collection = importlib.import_module(SEED_PACKAGE_PREFIX + self.__language)
       self.__faker_seeds = _seeds_collection.personal_lookup
     except ModuleNotFoundError as not_found_err:
       self.__faker_seeds = default_personal_lookup

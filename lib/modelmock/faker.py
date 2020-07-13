@@ -15,6 +15,24 @@ from modelmock.utils import (
 )
 from modelmock.user_info import Generator as UserGenerator
 
+
+class CandidatesFaker(object):
+
+  def __init__(self, total_candidates, **kwargs):
+    self.__total_candidates = total_candidates
+    assert isinstance(self.__total_candidates, int) and self.__total_candidates > 0,\
+        'total_candidates must be a positive integer'
+
+  def generate(self):
+    _ids = generate_ids(self.__total_candidates, prefix='CAN', padding=10)
+    for _id in _ids:
+      yield dict(id=_id)
+
+  @property
+  def total(self):
+    return self.__total_candidates
+
+
 class PromotionCodeFaker(object):
 
   def __init__(self, total_codes, spread_limit=5, **kwargs):
@@ -43,6 +61,10 @@ class PromotionCodeFaker(object):
         self.__referral_targets[_referral_code].append(_procode)
       self.__referral_targets[_procode] = []
       yield dict(promotion_code=_procode, referral_code=_referral_code)
+
+  @property
+  def total(self):
+    return self.__total_codes
 
 
 # [BEGIN generate_agents()]

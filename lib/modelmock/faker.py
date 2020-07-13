@@ -186,6 +186,35 @@ def expand_tree_path(nodes, index_name='index', level_name='level', super_name='
 
 # [BEGIN generate_contracts()]
 
+
+class ContractsFaker(object):
+
+  def __init__(self, total_contracts, contract_price, price_unit=1, id_prefix='CONTR', id_padding=6, flatten=True, **kwargs):
+    self.__total_contracts = total_contracts
+    assert isinstance(self.__total_contracts, int) and self.__total_contracts > 0,\
+        'total_contracts must be a positive integer'
+
+    self.__contract_price = contract_price
+    assert isinstance(self.__contract_price, int) and self.__contract_price > 0,\
+        'contract_price must be a positive integer'
+
+    self.__price_unit = price_unit
+    self.__id_prefix = id_prefix
+    self.__id_padding = id_padding
+    self.__flatten = flatten
+
+  @property
+  def total(self):
+    return self.__total_contracts
+
+  def generate(self):
+    return generate_contracts(self.__total_contracts, self.__contract_price,
+        unit=self.__price_unit,
+        id_prefix=self.__id_prefix,
+        id_padding=self.__id_padding,
+        flatten=self.__flatten)
+
+
 def generate_contracts(total_contracts, contract_price, unit, id_prefix='CONTR', id_padding=6, flatten=True):
   # estimate the revenue ~ price * total
   _revenue = contract_price * total_contracts

@@ -17,6 +17,34 @@ from modelmock.utils import (
 from modelmock.user_info import Generator as UserGenerator
 
 
+class AgentsFaker(object):
+
+  def __init__(self, total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='vi_VN', **kwargs):
+    self.__total_agents = total_agents
+    assert isinstance(self.__total_agents, int) and self.__total_agents > 0,\
+        'total_agents must be a positive integer'
+
+    self.__level_mappings = level_mappings
+    assert isinstance(self.__level_mappings, list),\
+        'level_mappings must be a list'
+
+    self.__subpath = subpath
+    self.__id_prefix = id_prefix
+    self.__id_padding = id_padding
+    self.__language = language
+
+  @property
+  def total(self):
+    return self.__total_agents
+
+  def generate(self):
+    return generate_agents(self.__total_agents, self.__level_mappings,
+        subpath=self.__subpath,
+        id_prefix=self.__id_prefix,
+        id_padding=self.__id_padding,
+        language=self.__language)
+
+
 class CandidatesFaker(object):
 
   def __init__(self, total_candidates, **kwargs):
@@ -72,7 +100,7 @@ class PromotionCodeFaker(object):
 
 # [BEGIN generate_agents()]
 
-def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='vi_VN'):
+def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
   _records = UserGenerator(language=language).inject_user_info(
     flatten_sub_dict(
       generatorify(

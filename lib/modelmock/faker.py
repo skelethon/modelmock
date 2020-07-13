@@ -189,7 +189,7 @@ def expand_tree_path(nodes, index_name='index', level_name='level', super_name='
 
 class ContractsFaker(object):
 
-  def __init__(self, total_contracts, contract_price, price_unit=1, id_prefix='CONTR', id_padding=6, flatten=True, **kwargs):
+  def __init__(self, total_contracts, contract_price, unit=1, id_prefix='CONTR', id_padding=6, flatten=True, **kwargs):
     self.__total_contracts = total_contracts
     assert isinstance(self.__total_contracts, int) and self.__total_contracts > 0,\
         'total_contracts must be a positive integer'
@@ -198,7 +198,7 @@ class ContractsFaker(object):
     assert isinstance(self.__contract_price, int) and self.__contract_price > 0,\
         'contract_price must be a positive integer'
 
-    self.__price_unit = price_unit
+    self.__unit = unit
     self.__id_prefix = id_prefix
     self.__id_padding = id_padding
     self.__flatten = flatten
@@ -208,43 +208,48 @@ class ContractsFaker(object):
     return self.__total_contracts
 
   def generate(self):
-    return generate_contracts(self.__total_contracts, self.__contract_price,
-        unit=self.__price_unit,
+    return self.__generate_contracts(self.__total_contracts, self.__contract_price,
+        unit=self.__unit,
         id_prefix=self.__id_prefix,
         id_padding=self.__id_padding,
         flatten=self.__flatten)
 
+  def __generate_contracts(self, total_contracts, contract_price, unit, id_prefix='CONTR', id_padding=6, flatten=True):
+    # estimate the revenue ~ price * total
+    _revenue = contract_price * total_contracts
 
-def generate_contracts(total_contracts, contract_price, unit, id_prefix='CONTR', id_padding=6, flatten=True):
-  # estimate the revenue ~ price * total
-  _revenue = contract_price * total_contracts
+    # randomize the prices (length: total_contracts)
+    _prices = random_fixed_sum_array(_revenue, total_contracts)
 
-  # randomize the prices (length: total_contracts)
-  _prices = random_fixed_sum_array(_revenue, total_contracts)
+    # common kwargs
+    _args_tail = dict(unit=unit, id_prefix=id_prefix, id_padding=id_padding, flatten=flatten)
 
-  # common kwargs
-  _args_tail = dict(unit=unit, id_prefix=id_prefix, id_padding=id_padding, flatten=flatten)
-
-  # generate each contracts
-  return map(lambda idx, price: generate_contract(idx, price, **_args_tail), range(total_contracts), _prices)
+    # generate each contracts
+    return map(lambda idx, price: self.__generate_contract(idx, price, **_args_tail), range(total_contracts), _prices)
 
 
-def generate_contract(idx, price, unit, id_prefix='C', id_padding=6, max_extras=5, flatten=True, extra_generator=None):
-    num_extras = random.randint(1, max_extras)
-    if extra_generator is None:
-      extras = []
-      for idx_extras in range(num_extras):
-        extras.append(dict(
-          fare = random.randint(1,5) * unit,
-          type = random.randint(1,3),
-          duration = random.randint(1, 12),
-        ))
-    else:
-      extras = map(extra_generator, range(num_extras))
-    _contract = dict(id=number_to_id(idx, id_prefix, id_padding), fyp=price * unit, extras=extras)
-    if flatten:
-      return flatten_sub_list(_contract)
-    return _contract
+  def __generate_contract(self, idx, price, unit, id_prefix='C', id_padding=6, max_extras=5, flatten=True, extra_generator=None):
+      num_extras = random.randint(1, max_extras)
+      if extra_generator is None:
+        extras = []
+        for idx_extras in range(num_extras):
+          extras.append(dict(
+            fare = random.randint(1,5) * unit,
+            type = random.randint(1,3),
+            duration = random.randint(1, 12),
+          ))
+      else:
+        extras = map(extra_generator, range(num_extras))
+      _contract = dict(id=number_to_id(idx, id_prefix, id_padding), fyp=price * unit, extras=extras)
+      if flatten:
+        return flatten_sub_list(_contract)
+      return _contract
+
+
+def generate_contracts(total_contracts, contract_price, unit, **kwargs):
+  myargs = dict(total_contracts=total_contracts, contract_price=contract_price, unit=unit)
+  myargs.update(kwargs)
+  return ContractsFaker(**myargs).generate()
 
 
 def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):

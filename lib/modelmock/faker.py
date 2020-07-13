@@ -12,6 +12,7 @@ from modelmock.utils import (
   flatten_sub_dict,
   flatten_sub_list,
   random_fixed_sum_array,
+  wrap_nodes,
 )
 from modelmock.user_info import Generator as UserGenerator
 
@@ -23,10 +24,12 @@ class CandidatesFaker(object):
     assert isinstance(self.__total_candidates, int) and self.__total_candidates > 0,\
         'total_candidates must be a positive integer'
 
+    _language = kwargs['language'] if 'language' in kwargs else None
+    self.__user_info_faker = UserGenerator(language=_language)
+
   def generate(self):
     _ids = generate_ids(self.__total_candidates, prefix='CAN', padding=10)
-    for _id in _ids:
-      yield dict(id=_id)
+    return self.__user_info_faker.inject_user_info(wrap_nodes(_ids, field_name='id'))
 
   @property
   def total(self):

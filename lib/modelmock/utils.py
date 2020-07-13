@@ -26,6 +26,13 @@ def generate_ids(max, prefix='A', padding=4):
   return map(lambda x: number_to_id(x, prefix=prefix, padding=padding), range(max))
 
 
+def wrap_nodes(nodes, field_name=None):
+  if not isiterable(nodes) or not isinstance(field_name, str):
+    return nodes
+  for node in nodes:
+    yield { field_name: node }
+
+
 def shuffle_nodes(nodes):
   new_nodes = np.array(list(nodes))
   np.random.shuffle(new_nodes)

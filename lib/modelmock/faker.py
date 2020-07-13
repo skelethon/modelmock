@@ -15,6 +15,36 @@ from modelmock.utils import (
 )
 from modelmock.user_info import Generator as UserGenerator
 
+class PromotionCodeFaker(object):
+
+  def __init__(self, total_codes, spread_limit=5, **kwargs):
+    self.__total_codes = total_codes
+    assert isinstance(self.__total_codes, int) and self.__total_codes > 0,\
+        'total_codes must be a positive integer'
+
+    self.__spread_limit = spread_limit
+    assert isinstance(self.__spread_limit, int) and self.__spread_limit > 0 and self.__spread_limit <= self.__total_codes,\
+        'spread_limit must be a positive integer'
+
+    self.__referral_targets = dict()
+
+  def __pick_a_referral_code(self):
+    _referral_code = None
+    _avail_codes = list(filter(lambda _key: (len(self.__referral_targets[_key]) < self.__spread_limit), self.__referral_targets.keys()))
+    if len(_avail_codes) > 2:
+      _referral_code = _avail_codes[random.randint(0, len(_avail_codes) - 1)]
+    return _referral_code
+
+  def generate(self):
+    _procodes = generate_ids(self.__total_codes, prefix='PC', padding=10)
+    for _procode in _procodes:
+      _referral_code = self.__pick_a_referral_code()
+      if _referral_code is not None:
+        self.__referral_targets[_referral_code].append(_procode)
+      self.__referral_targets[_procode] = []
+      yield dict(promotion_code=_procode, referral_code=_referral_code)
+
+
 # [BEGIN generate_agents()]
 
 def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='vi_VN'):

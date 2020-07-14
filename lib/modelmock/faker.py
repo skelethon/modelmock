@@ -132,6 +132,8 @@ class AgentsFaker(object):
 # [END AgentsFaker]
 
 
+# [BEGIN CandidatesFaker]
+
 class CandidatesFaker(object):
 
   def __init__(self, total_candidates, **kwargs):
@@ -150,6 +152,10 @@ class CandidatesFaker(object):
   def total(self):
     return self.__total_candidates
 
+# [END CandidatesFaker]
+
+
+# [BEGIN PromotionCodeFaker]
 
 class PromotionCodeFaker(object):
 
@@ -183,6 +189,8 @@ class PromotionCodeFaker(object):
   @property
   def total(self):
     return self.__total_codes
+
+# [END PromotionCodeFaker]
 
 
 # [BEGIN ContractsFaker]
@@ -248,26 +256,42 @@ class ContractsFaker(object):
 # [END ContractsFaker]
 
 
-def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
-  # generate the contracts
-  _contracts = generate_contracts(total_contracts, contract_price, unit,
-      id_prefix=id_prefix,
-      id_padding=id_padding,
-      flatten=flatten)
+# [BEGIN PurchasesFaker]
 
-  def assign_contract_to_agent(contract, agent_id):
-    contract['agent_id'] = agent_id
-    return contract
+class PurchasesFaker(object):
 
-  def select_agent_for_contract(total_contracts, total_agents):
-    # assign the contracts to agents
-    num_contracts_per_agents = random_fixed_sum_array(total_contracts, total_agents)
+  def __init__(self, agents_faker, contracts_faker, **kwargs):
+    self.__agents_faker = agents_faker
+    assert isinstance(self.__agents_faker, AgentsFaker),\
+        'agents_faker must be an instance of AgentsFaker type'
 
-    for i in range(len(num_contracts_per_agents)):
-      for j in range(num_contracts_per_agents[i]):
-        yield number_to_id(i)
+    self.__contracts_faker = contracts_faker
+    assert isinstance(self.__contracts_faker, ContractsFaker),\
+        'contracts_faker must be an instance of ContractsFaker type'
 
-  return map(assign_contract_to_agent, _contracts, select_agent_for_contract(total_contracts, total_agents))
+  @property
+  def total(self):
+    return self.__contracts_faker.total
+
+  def generate(self):
+    total_agents = self.__agents_faker.total
+    total_contracts = self.__contracts_faker.total
+
+    def assign_contract_to_agent(contract, agent_id):
+      contract['agent_id'] = agent_id
+      return contract
+
+    def select_agent_for_contract(total_contracts, total_agents):
+      # assign the contracts to agents
+      num_contracts_per_agents = random_fixed_sum_array(total_contracts, total_agents)
+
+      for i in range(len(num_contracts_per_agents)):
+        for j in range(num_contracts_per_agents[i]):
+          yield number_to_id(i)
+
+    return map(assign_contract_to_agent, self.__contracts_faker.generate(), select_agent_for_contract(total_contracts, total_agents))
+
+# [END PurchasesFaker]
 
 
 def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
@@ -283,3 +307,14 @@ def generate_contracts(total_contracts, contract_price, unit, **kwargs):
   myargs = dict(total_contracts=total_contracts, contract_price=contract_price, unit=unit)
   myargs.update(kwargs)
   return ContractsFaker(**myargs).generate()
+
+
+def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
+  agents_faker = AgentsFaker(total_agents, [])
+
+  contracts_faker = ContractsFaker(total_contracts, contract_price, unit,
+      id_prefix=id_prefix,
+      id_padding=id_padding,
+      flatten=flatten)
+
+  return PurchasesFaker(agents_faker, contracts_faker).generate()

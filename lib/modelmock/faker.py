@@ -17,6 +17,8 @@ from modelmock.utils import (
 from modelmock.user_info import Generator as UserGenerator
 
 
+# [BEGIN AgentsFaker]
+
 class AgentsFaker(object):
 
   def __init__(self, total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='vi_VN', **kwargs):
@@ -38,11 +40,96 @@ class AgentsFaker(object):
     return self.__total_agents
 
   def generate(self):
-    return generate_agents(self.__total_agents, self.__level_mappings,
+    return self._generate_agents(self.__total_agents, self.__level_mappings,
         subpath=self.__subpath,
         id_prefix=self.__id_prefix,
         id_padding=self.__id_padding,
         language=self.__language)
+
+  @classmethod
+  def _generate_agents(cls, total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
+    _records = UserGenerator(language=language).inject_user_info(
+      flatten_sub_dict(
+        generatorify(
+          cls._expand_tree_path(
+            cls._assign_levels(None,
+              indices=list(shuffle_nodes(generate_ids(total_agents, prefix=id_prefix, padding=id_padding))),
+              levels=level_mappings)
+          )
+        )
+      )
+    )
+
+    if isinstance(subpath, str):
+      return map(lambda item: { subpath: item }, _records)
+    else:
+      return _records
+
+  @classmethod
+  def _expand_tree_path(cls, nodes, index_name='index', level_name='level', super_name='super', prior_list='refs'):
+    _lkup = list_to_dict(nodes)
+    for node in nodes:
+      node[prior_list] = dict()
+      node[prior_list][node[level_name]] = node[index_name]
+
+      _super_id = node[super_name]
+      if _super_id is None:
+        continue
+
+      _super = _lkup[_super_id]
+      _super_refs = _super[prior_list]
+
+      for ref_label in _super_refs.keys():
+        node[prior_list][ref_label] = _super_refs[ref_label]
+
+    return nodes
+
+  @classmethod
+  def _assign_levels(cls, super_id, indices, levels):
+    if not isinstance(indices, list):
+      raise TypeError('indices is invalid')
+
+    ret = []
+
+    if not isinstance(indices, list) or len(indices) == 0:
+      return ret
+    if isinstance(levels, list) and len(levels) > 0:
+      current = levels[0]
+      levels = levels[1:]
+      if len(levels) == 0:
+        for i in indices:
+          item = dict(
+            level=current['level'],
+            index=i,
+            super=super_id
+          )
+          ret.append(item)
+      else:
+        # determines the number of branches
+        if 'count' in current:
+          _count = current['count']
+        else:
+          _min = current['min'] if 'min' in current else 0
+          _max = current['max'] if 'max' in current else len(indices)
+          _count = random.randint(_min, _max)
+        # no any branch of this level
+        if _count == 0:
+          return cls._assign_levels(super_id, indices, levels)
+        # split the children
+        group_len = _count if _count < len(indices) else len(indices)
+        child_group = array_random_split(indices, group_len)
+        for child in child_group:
+          first_index = child[0]
+          subchild = child[1:]
+          ret.append(dict(
+            level=current['level'],
+            index=first_index,
+            super=super_id
+          ))
+          ret = ret + cls._assign_levels(first_index, subchild, levels = levels)
+    return ret
+
+# [END AgentsFaker]
 
 
 class CandidatesFaker(object):
@@ -98,94 +185,7 @@ class PromotionCodeFaker(object):
     return self.__total_codes
 
 
-# [BEGIN generate_agents()]
-
-def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
-  _records = UserGenerator(language=language).inject_user_info(
-    flatten_sub_dict(
-      generatorify(
-        expand_tree_path(
-          assign_levels(None,
-            indices=list(shuffle_nodes(generate_ids(total_agents, prefix=id_prefix, padding=id_padding))),
-            levels=level_mappings)
-        )
-      )
-    )
-  )
-
-  if isinstance(subpath, str):
-    return map(lambda item: { subpath: item }, _records)
-  else:
-    return _records
-
-def assign_levels(super_id, indices, levels):
-  if not isinstance(indices, list):
-    raise TypeError('indices is invalid')
-
-  ret = []
-
-  if not isinstance(indices, list) or len(indices) == 0:
-    return ret
-  if isinstance(levels, list) and len(levels) > 0:
-    current = levels[0]
-    levels = levels[1:]
-    if len(levels) == 0:
-      for i in indices:
-        item = dict(
-          level=current['level'],
-          index=i,
-          super=super_id
-        )
-        ret.append(item)
-    else:
-      # determines the number of branches
-      if 'count' in current:
-        _count = current['count']
-      else:
-        _min = current['min'] if 'min' in current else 0
-        _max = current['max'] if 'max' in current else len(indices)
-        _count = random.randint(_min, _max)
-      # no any branch of this level
-      if _count == 0:
-        return assign_levels(super_id, indices, levels)
-      # split the children
-      group_len = _count if _count < len(indices) else len(indices)
-      child_group = array_random_split(indices, group_len)
-      for child in child_group:
-        first_index = child[0]
-        subchild = child[1:]
-        ret.append(dict(
-          level=current['level'],
-          index=first_index,
-          super=super_id
-        ))
-        ret = ret + assign_levels(first_index, subchild, levels = levels)
-  return ret
-
-
-def expand_tree_path(nodes, index_name='index', level_name='level', super_name='super', prior_list='refs'):
-  _lkup = list_to_dict(nodes)
-  for node in nodes:
-    node[prior_list] = dict()
-    node[prior_list][node[level_name]] = node[index_name]
-
-    _super_id = node[super_name]
-    if _super_id is None:
-      continue
-
-    _super = _lkup[_super_id]
-    _super_refs = _super[prior_list]
-
-    for ref_label in _super_refs.keys():
-      node[prior_list][ref_label] = _super_refs[ref_label]
-
-  return nodes
-
-# [END generate_agents()]
-
-
-# [BEGIN generate_contracts()]
-
+# [BEGIN ContractsFaker]
 
 class ContractsFaker(object):
 
@@ -245,11 +245,7 @@ class ContractsFaker(object):
         return flatten_sub_list(_contract)
       return _contract
 
-
-def generate_contracts(total_contracts, contract_price, unit, **kwargs):
-  myargs = dict(total_contracts=total_contracts, contract_price=contract_price, unit=unit)
-  myargs.update(kwargs)
-  return ContractsFaker(**myargs).generate()
+# [END ContractsFaker]
 
 
 def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
@@ -273,4 +269,17 @@ def generate_purchases(contract_price, total_contracts, total_agents, unit, id_p
 
   return map(assign_contract_to_agent, _contracts, select_agent_for_contract(total_contracts, total_agents))
 
-# [END generate_contracts()]
+
+def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
+  faker = AgentsFaker(total_agents, level_mappings,
+      subpath=subpath,
+      id_prefix=id_prefix,
+      id_padding=id_padding,
+      language=language)
+  return faker.generate()
+
+
+def generate_contracts(total_contracts, contract_price, unit, **kwargs):
+  myargs = dict(total_contracts=total_contracts, contract_price=contract_price, unit=unit)
+  myargs.update(kwargs)
+  return ContractsFaker(**myargs).generate()

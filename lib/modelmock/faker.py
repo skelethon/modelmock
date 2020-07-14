@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import abc
 import random
 from modelmock.utils import (
   array_random_split,
@@ -17,9 +18,31 @@ from modelmock.utils import (
 from modelmock.user_info import Generator as UserGenerator
 
 
+class AbstractSeqFaker(metaclass=abc.ABCMeta):
+
+  def __init__(self, **kwargs):
+    pass
+
+  @abc.abstractproperty
+  def total(self):
+    pass
+
+  @abc.abstractproperty
+  def records(self):
+    pass
+
+  @classmethod
+  def __subclasshook__(cls, C):
+    if cls is AbstractSeqFaker:
+      attrs = set(dir(C))
+      if set(cls.__abstractmethods__) <= attrs:
+        return True
+    return NotImplemented
+
+
 # [BEGIN AgentsFaker]
 
-class AgentsFaker(object):
+class AgentsFaker(AbstractSeqFaker):
 
   def __init__(self, total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='vi_VN', **kwargs):
     self.__total_agents = total_agents
@@ -47,7 +70,8 @@ class AgentsFaker(object):
       self.__ids = list(shuffle_nodes(generate_ids(self.__total_agents, prefix=self.__id_prefix, padding=self.__id_padding)))
     return self.__ids
 
-  def generate(self):
+  @property
+  def records(self):
     return self._generate_agents(self.ids, self.__level_mappings,
         subpath=self.__subpath,
         id_prefix=self.__id_prefix,
@@ -142,7 +166,7 @@ class AgentsFaker(object):
 
 # [BEGIN CandidatesFaker]
 
-class CandidatesFaker(object):
+class CandidatesFaker(AbstractSeqFaker):
 
   def __init__(self, total_candidates, **kwargs):
     self.__total_candidates = total_candidates
@@ -152,20 +176,21 @@ class CandidatesFaker(object):
     _language = kwargs['language'] if 'language' in kwargs else None
     self.__user_info_faker = UserGenerator(language=_language)
 
-  def generate(self):
-    _ids = generate_ids(self.__total_candidates, prefix='CAN', padding=10)
-    return self.__user_info_faker.inject_user_info(wrap_nodes(_ids, field_name='id'))
-
   @property
   def total(self):
     return self.__total_candidates
+
+  @property
+  def records(self):
+    _ids = generate_ids(self.__total_candidates, prefix='CAN', padding=10)
+    return self.__user_info_faker.inject_user_info(wrap_nodes(_ids, field_name='id'))
 
 # [END CandidatesFaker]
 
 
 # [BEGIN PromotionCodeFaker]
 
-class PromotionCodeFaker(object):
+class PromotionCodeFaker(AbstractSeqFaker):
 
   def __init__(self, total_codes, spread_limit=5, **kwargs):
     self.__total_codes = total_codes
@@ -178,14 +203,12 @@ class PromotionCodeFaker(object):
 
     self.__referral_targets = dict()
 
-  def __pick_a_referral_code(self):
-    _referral_code = None
-    _avail_codes = list(filter(lambda _key: (len(self.__referral_targets[_key]) < self.__spread_limit), self.__referral_targets.keys()))
-    if len(_avail_codes) > 2:
-      _referral_code = _avail_codes[random.randint(0, len(_avail_codes) - 1)]
-    return _referral_code
+  @property
+  def total(self):
+    return self.__total_codes
 
-  def generate(self):
+  @property
+  def records(self):
     _procodes = generate_ids(self.__total_codes, prefix='PC', padding=10)
     for _procode in _procodes:
       _referral_code = self.__pick_a_referral_code()
@@ -194,16 +217,19 @@ class PromotionCodeFaker(object):
       self.__referral_targets[_procode] = []
       yield dict(promotion_code=_procode, referral_code=_referral_code)
 
-  @property
-  def total(self):
-    return self.__total_codes
+  def __pick_a_referral_code(self):
+    _referral_code = None
+    _avail_codes = list(filter(lambda _key: (len(self.__referral_targets[_key]) < self.__spread_limit), self.__referral_targets.keys()))
+    if len(_avail_codes) > 2:
+      _referral_code = _avail_codes[random.randint(0, len(_avail_codes) - 1)]
+    return _referral_code
 
 # [END PromotionCodeFaker]
 
 
 # [BEGIN ContractsFaker]
 
-class ContractsFaker(object):
+class ContractsFaker(AbstractSeqFaker):
 
   def __init__(self, total_contracts, contract_price, unit=1, id_prefix='CONTR', id_padding=6, flatten=True, **kwargs):
     self.__total_contracts = total_contracts
@@ -223,7 +249,8 @@ class ContractsFaker(object):
   def total(self):
     return self.__total_contracts
 
-  def generate(self):
+  @property
+  def records(self):
     return self.__generate_contracts(self.__total_contracts, self.__contract_price,
         unit=self.__unit,
         id_prefix=self.__id_prefix,
@@ -266,7 +293,7 @@ class ContractsFaker(object):
 
 # [BEGIN PurchasesFaker]
 
-class PurchasesFaker(object):
+class PurchasesFaker(AbstractSeqFaker):
 
   def __init__(self, agents_faker, contracts_faker, **kwargs):
     self.__agents_faker = agents_faker
@@ -281,7 +308,8 @@ class PurchasesFaker(object):
   def total(self):
     return self.__contracts_faker.total
 
-  def generate(self):
+  @property
+  def records(self):
     total_agents = self.__agents_faker.total
     total_contracts = self.__contracts_faker.total
 
@@ -299,7 +327,7 @@ class PurchasesFaker(object):
           yield agent_id
         i += 1
 
-    return map(assign_contract_to_agent, self.__contracts_faker.generate(), select_agent_for_contract(total_contracts, total_agents))
+    return map(assign_contract_to_agent, self.__contracts_faker.records, select_agent_for_contract(total_contracts, total_agents))
 
 # [END PurchasesFaker]
 
@@ -310,13 +338,13 @@ def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A
       id_prefix=id_prefix,
       id_padding=id_padding,
       language=language)
-  return faker.generate()
+  return faker.records
 
 
 def generate_contracts(total_contracts, contract_price, unit, **kwargs):
   myargs = dict(total_contracts=total_contracts, contract_price=contract_price, unit=unit)
   myargs.update(kwargs)
-  return ContractsFaker(**myargs).generate()
+  return ContractsFaker(**myargs).records
 
 
 def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
@@ -327,4 +355,4 @@ def generate_purchases(contract_price, total_contracts, total_agents, unit, id_p
       id_padding=id_padding,
       flatten=flatten)
 
-  return PurchasesFaker(agents_faker, contracts_faker).generate()
+  return PurchasesFaker(agents_faker, contracts_faker).records

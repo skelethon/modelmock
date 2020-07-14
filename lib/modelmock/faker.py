@@ -35,25 +35,33 @@ class AgentsFaker(object):
     self.__id_padding = id_padding
     self.__language = language
 
+    self.__ids = None
+
   @property
   def total(self):
     return self.__total_agents
 
+  @property
+  def ids(self):
+    if self.__ids is None:
+      self.__ids = list(shuffle_nodes(generate_ids(self.__total_agents, prefix=self.__id_prefix, padding=self.__id_padding)))
+    return self.__ids
+
   def generate(self):
-    return self._generate_agents(self.__total_agents, self.__level_mappings,
+    return self._generate_agents(self.ids, self.__level_mappings,
         subpath=self.__subpath,
         id_prefix=self.__id_prefix,
         id_padding=self.__id_padding,
         language=self.__language)
 
   @classmethod
-  def _generate_agents(cls, total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
+  def _generate_agents(cls, agent_ids, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
     _records = UserGenerator(language=language).inject_user_info(
       flatten_sub_dict(
         generatorify(
           cls._expand_tree_path(
             cls._assign_levels(None,
-              indices=list(shuffle_nodes(generate_ids(total_agents, prefix=id_prefix, padding=id_padding))),
+              indices=agent_ids,
               levels=level_mappings)
           )
         )
@@ -285,9 +293,11 @@ class PurchasesFaker(object):
       # assign the contracts to agents
       num_contracts_per_agents = random_fixed_sum_array(total_contracts, total_agents)
 
-      for i in range(len(num_contracts_per_agents)):
+      i = 0
+      for agent_id in self.__agents_faker.ids:
         for j in range(num_contracts_per_agents[i]):
-          yield number_to_id(i)
+          yield agent_id
+        i += 1
 
     return map(assign_contract_to_agent, self.__contracts_faker.generate(), select_agent_for_contract(total_contracts, total_agents))
 

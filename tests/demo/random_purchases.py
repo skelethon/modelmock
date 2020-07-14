@@ -7,8 +7,8 @@ from pprint import pprint
 from modelmock.faker import (generate_purchases)
 
 pprint(list(generate_purchases(
-  contract_price=15,
-  total_contracts=300,
   total_agents=100,
+  total_contracts=300,
+  contract_price=15,
   unit=1000000,
 )))

@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import abc
 import random
+from modelmock.abc import AbstractSeqFaker
 from modelmock.utils import (
   array_random_split,
   chunkify,
@@ -18,33 +18,11 @@ from modelmock.utils import (
 from modelmock.user_info import Generator as UserGenerator
 
 
-class AbstractSeqFaker(metaclass=abc.ABCMeta):
-
-  def __init__(self, **kwargs):
-    pass
-
-  @abc.abstractproperty
-  def total(self):
-    pass
-
-  @abc.abstractproperty
-  def records(self):
-    pass
-
-  @classmethod
-  def __subclasshook__(cls, C):
-    if cls is AbstractSeqFaker:
-      attrs = set(dir(C))
-      if set(cls.__abstractmethods__) <= attrs:
-        return True
-    return NotImplemented
-
-
 # [BEGIN AgentsFaker]
 
 class AgentsFaker(AbstractSeqFaker):
 
-  def __init__(self, total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='vi_VN', **kwargs):
+  def __init__(self, total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, id_shuffle=True, language='vi_VN', **kwargs):
     self.__total_agents = total_agents
     assert isinstance(self.__total_agents, int) and self.__total_agents > 0,\
         'total_agents must be a positive integer'
@@ -176,14 +154,21 @@ class CandidatesFaker(AbstractSeqFaker):
     _language = kwargs['language'] if 'language' in kwargs else None
     self.__user_info_faker = UserGenerator(language=_language)
 
+    self.__ids = None
+
+  @property
+  def ids(self):
+    if self.__ids is None:
+      self.__ids = generate_ids(self.__total_candidates, prefix='CAN', padding=10)
+    return self.__ids
+
   @property
   def total(self):
     return self.__total_candidates
 
   @property
   def records(self):
-    _ids = generate_ids(self.__total_candidates, prefix='CAN', padding=10)
-    return self.__user_info_faker.inject_user_info(wrap_nodes(_ids, field_name='id'))
+    return self.__user_info_faker.inject_user_info(wrap_nodes(self.ids, field_name='id'))
 
 # [END CandidatesFaker]
 
@@ -321,11 +306,9 @@ class PurchasesFaker(AbstractSeqFaker):
       # assign the contracts to agents
       num_contracts_per_agents = random_fixed_sum_array(total_contracts, total_agents)
 
-      i = 0
-      for agent_id in self.__agents_faker.ids:
+      for i, agent_id in enumerate(self.__agents_faker.ids):
         for j in range(num_contracts_per_agents[i]):
           yield agent_id
-        i += 1
 
     return map(assign_contract_to_agent, self.__contracts_faker.records, select_agent_for_contract(total_contracts, total_agents))
 

@@ -39,7 +39,7 @@ def display(_faker):
   _total = _faker.total
   _count = 0
   sys.stdout.write('[' + '\n')
-  for item in _faker.generate():
+  for item in _faker.records:
     _count += 1
     sys.stdout.write('  ' + json.dumps(item) + (',\n' if _count<_total else '\n'))
   sys.stdout.write(']' + '\n')

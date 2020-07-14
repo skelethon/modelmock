@@ -22,8 +22,12 @@ def number_to_id(number, prefix='A', padding=4):
   return prefix + '_' + str(number).zfill(padding)
 
 
-def generate_ids(max, prefix='A', padding=4):
-  return map(lambda x: number_to_id(x, prefix=prefix, padding=padding), range(max))
+def generate_ids(max, prefix='A', padding=4, shuffle=False):
+  _ids = range(max)
+  if shuffle:
+    _ids = list(_ids)
+    random.shuffle(_ids)
+  return map(lambda x: number_to_id(x, prefix=prefix, padding=padding), _ids)
 
 
 def wrap_nodes(nodes, field_name=None):

@@ -34,6 +34,7 @@ class AgentsFaker(AbstractSeqFaker):
     self.__subpath = subpath
     self.__id_prefix = id_prefix
     self.__id_padding = id_padding
+    self.__id_shuffle = id_shuffle
     self.__language = language
 
     self.__ids = None
@@ -45,7 +46,7 @@ class AgentsFaker(AbstractSeqFaker):
   @property
   def ids(self):
     if self.__ids is None:
-      self.__ids = list(shuffle_nodes(generate_ids(self.__total_agents, prefix=self.__id_prefix, padding=self.__id_padding)))
+      self.__ids = generate_ids(self.__total_agents, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
     return self.__ids
 
   @property
@@ -63,7 +64,7 @@ class AgentsFaker(AbstractSeqFaker):
         generatorify(
           cls._expand_tree_path(
             cls._assign_levels(None,
-              indices=agent_ids,
+              indices=list(agent_ids),
               levels=level_mappings)
           )
         )
@@ -146,7 +147,7 @@ class AgentsFaker(AbstractSeqFaker):
 
 class CandidatesFaker(AbstractSeqFaker):
 
-  def __init__(self, total_candidates, **kwargs):
+  def __init__(self, total_candidates, id_prefix='CAN', id_padding=10, id_shuffle=False, language='en', **kwargs):
     self.__total_candidates = total_candidates
     assert isinstance(self.__total_candidates, int) and self.__total_candidates > 0,\
         'total_candidates must be a positive integer'
@@ -154,12 +155,17 @@ class CandidatesFaker(AbstractSeqFaker):
     _language = kwargs['language'] if 'language' in kwargs else None
     self.__user_info_faker = UserGenerator(language=_language)
 
+    self.__id_prefix = id_prefix
+    self.__id_padding = id_padding
+    self.__id_shuffle = id_shuffle
+    self.__language = language
+
     self.__ids = None
 
   @property
   def ids(self):
     if self.__ids is None:
-      self.__ids = generate_ids(self.__total_candidates, prefix='CAN', padding=10)
+      self.__ids = generate_ids(self.__total_candidates, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
     return self.__ids
 
   @property

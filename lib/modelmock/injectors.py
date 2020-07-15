@@ -6,19 +6,18 @@ import random
 
 class DateTimeInjector(object):
 
-  def __init__(self, total, descriptors, **kwargs):
+  def __init__(self, total, descriptors, begin=None, **kwargs):
+    assert isinstance(total, int) and total > 0, 'total must be a positive integer'
     self.__total = total
-    assert isinstance(self.__total, int) and self.__total > 0,\
-        'total must be a positive integer'
 
-    assert isinstance(descriptors, list),\
-        'descriptors must be a list'
-
+    assert isinstance(descriptors, list), 'descriptors must be a list'
     self.__randomizers = []
     for i, descriptor in enumerate(descriptors):
       self.__randomizers.append(DateTimeRandomizer(total, **descriptor))
-
     self.__randomizers = sorted(self.__randomizers, key= lambda r: r.step)
+
+    self.__begin = datetime.now() if begin is None else begin
+    assert isinstance(self.__begin, datetime), 'begin must be a datetime'
 
   def inject(self, data):
     if isiterable(data):
@@ -30,14 +29,14 @@ class DateTimeInjector(object):
   def __gen_times(self, data):
     data = dictify(data)
     prev_step = 0
-    prev_time = None
+    prev_time = self.__begin
     for randomizer in self.__randomizers:
       if randomizer.step > prev_step:
         current = randomizer.next(prev_time)
         prev_time = current
         prev_step = randomizer.step
       else:
-        current = randomizer.next()
+        current = randomizer.next(prev_time)
       if randomizer.format is None:
         data[randomizer.name] = current
       else:

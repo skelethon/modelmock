@@ -22,7 +22,7 @@ from modelmock.user_info import Generator as UserGenerator
 
 class AgentsFaker(AbstractSeqFaker):
 
-  def __init__(self, total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, id_shuffle=True, language='vi_VN', **kwargs):
+  def __init__(self, total_agents, level_mappings, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', language='vi_VN', **kwargs):
     self.__total_agents = total_agents
     assert isinstance(self.__total_agents, int) and self.__total_agents > 0,\
         'total_agents must be a positive integer'
@@ -222,7 +222,7 @@ class PromotionCodeFaker(AbstractSeqFaker):
 
 class ContractsFaker(AbstractSeqFaker):
 
-  def __init__(self, total_contracts, contract_price, unit=1, id_prefix='CONTR', id_padding=6, flatten=True, **kwargs):
+  def __init__(self, total_contracts, contract_price, unit=1, id_prefix='CONTR', id_padding=6, id_shuffle=False, flatten=True, **kwargs):
     self.__total_contracts = total_contracts
     assert isinstance(self.__total_contracts, int) and self.__total_contracts > 0,\
         'total_contracts must be a positive integer'
@@ -234,6 +234,7 @@ class ContractsFaker(AbstractSeqFaker):
     self.__unit = unit
     self.__id_prefix = id_prefix
     self.__id_padding = id_padding
+    self.__id_shuffle = id_shuffle
     self.__flatten = flatten
 
   @property

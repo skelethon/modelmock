@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../lib')
 
 from pprint import pprint
 
-from modelmock.faker import (generate_purchases)
+from modelmock.fakers import (generate_purchases)
 
 pprint(list(generate_purchases(
   total_agents=100,

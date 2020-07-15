@@ -5,7 +5,7 @@ import json
 import sys
 from pprint import pprint
 from elgoogapi.auth.oauthlib.flow import authorize
-from modelmock.faker import (CandidatesFaker, PromotionCodeFaker)
+from modelmock.fakers import (CandidatesFaker, PromotionCodeFaker)
 
 def main(argv=sys.argv):
   parser = argparse.ArgumentParser(prog='python3 -m modelmock')

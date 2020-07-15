@@ -5,7 +5,7 @@ import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../lib')
 
-from modelmock.faker import generate_agents
+from modelmock.fakers import generate_agents
 
 
 class generate_agents_test(unittest.TestCase):

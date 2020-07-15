@@ -3,7 +3,7 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../lib')
 
 from pprint import pprint
-from modelmock.faker import generate_agents
+from modelmock.fakers import generate_agents
 
 _demo = os.environ.get('MODELMOCK_DEMO_GEN_AGENTS', '1')
 

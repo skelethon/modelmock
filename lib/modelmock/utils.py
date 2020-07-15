@@ -30,6 +30,14 @@ def generate_ids(max, prefix='A', padding=4, shuffle=False):
   return map(lambda x: number_to_id(x, prefix=prefix, padding=padding), _ids)
 
 
+def dictify(data=None, nested_field_name='nested_data'):
+  if isinstance(data, dict):
+    return data
+  if data is None:
+    return dict()
+  return { nested_field_name: data }
+
+
 def wrap_nodes(nodes, field_name=None):
   if not isiterable(nodes) or not isinstance(field_name, str):
     return nodes

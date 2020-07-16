@@ -9,6 +9,8 @@ from modelmock.fakers import AgentsFaker, CandidatesFaker, PromotionCodeFaker, C
 from modelmock.fakers import generate_purchases
 from modelmock.utils import pick_object_fields
 
+CHOICES_VALUE = ['true', 'false', 'yes', 'no', '1', '0']
+
 def main(argv=sys.argv):
   parser = argparse.ArgumentParser(prog='python3 -m modelmock')
   subparsers = parser.add_subparsers(help='Sub-commands', dest='sub_command')
@@ -20,6 +22,9 @@ def main(argv=sys.argv):
   generate_agents_parser = generate_subparsers.add_parser('agents', help='Generate a collection of agents')
   generate_agents_parser.add_argument("--total", type=int, help="Number of agents will be generated")
   generate_agents_parser.add_argument("--mappings", type=str, help="level_mappings in JSON format")
+  generate_agents_parser.add_argument("--id_prefix", type=str, default="AGENT", help="Prefix of the Agent IDs")
+  generate_agents_parser.add_argument("--id_padding", type=int, default=4, help="Length of padded numbers of IDs")
+  generate_agents_parser.add_argument("--id_shuffle", type=str, default="true", choices=CHOICES_VALUE, help="The IDs will be shuffled or not")
   generate_agents_parser.add_argument("--language", type=str, help="The language which used to generate the user information (phone, email, name, ...)")
 
   generate_candidates_parser = generate_subparsers.add_parser('candidates', help='Generate a collection of candidates')
@@ -46,6 +51,9 @@ def main(argv=sys.argv):
       display(AgentsFaker(**dict(
         total_agents=args.total,
         level_mappings=json.loads(args.mappings),
+        id_prefix=args.id_prefix,
+        id_padding=args.id_padding,
+        id_shuffle=(args.id_shuffle is not None and args.id_shuffle.lower() in ['true', 'yes', '1']),
         language=args.language,
       )))
       return 0

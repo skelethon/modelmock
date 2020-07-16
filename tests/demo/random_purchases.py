@@ -10,5 +10,5 @@ pprint(list(generate_purchases(
   total_agents=100,
   total_contracts=300,
   contract_price=15,
-  unit=1000000,
+  multiplier=1000000,
 )))

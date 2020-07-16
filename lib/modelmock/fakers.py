@@ -222,7 +222,7 @@ class PromotionCodeFaker(AbstractSeqFaker):
 
 class ContractsFaker(AbstractSeqFaker):
 
-  def __init__(self, total_contracts, contract_price, unit=1, id_prefix='CONTR', id_padding=6, id_shuffle=False, flatten=True, **kwargs):
+  def __init__(self, total_contracts, contract_price, multiplier=1, id_prefix='CONTR', id_padding=6, id_shuffle=False, flatten=True, **kwargs):
     self.__total_contracts = total_contracts
     assert isinstance(self.__total_contracts, int) and self.__total_contracts > 0,\
         'total_contracts must be a positive integer'
@@ -231,7 +231,7 @@ class ContractsFaker(AbstractSeqFaker):
     assert isinstance(self.__contract_price, int) and self.__contract_price > 0,\
         'contract_price must be a positive integer'
 
-    self.__unit = unit
+    self.__multiplier = multiplier
     self.__id_prefix = id_prefix
     self.__id_padding = id_padding
     self.__id_shuffle = id_shuffle
@@ -244,12 +244,12 @@ class ContractsFaker(AbstractSeqFaker):
   @property
   def records(self):
     return self.__generate_contracts(self.__total_contracts, self.__contract_price,
-        unit=self.__unit,
+        multiplier=self.__multiplier,
         id_prefix=self.__id_prefix,
         id_padding=self.__id_padding,
         flatten=self.__flatten)
 
-  def __generate_contracts(self, total_contracts, contract_price, unit, id_prefix='CONTR', id_padding=6, flatten=True):
+  def __generate_contracts(self, total_contracts, contract_price, multiplier, id_prefix='CONTR', id_padding=6, flatten=True):
     # estimate the revenue ~ price * total
     _revenue = contract_price * total_contracts
 
@@ -257,25 +257,25 @@ class ContractsFaker(AbstractSeqFaker):
     _prices = random_fixed_sum_array(_revenue, total_contracts)
 
     # common kwargs
-    _args_tail = dict(unit=unit, id_prefix=id_prefix, id_padding=id_padding, flatten=flatten)
+    _args_tail = dict(multiplier=multiplier, id_prefix=id_prefix, id_padding=id_padding, flatten=flatten)
 
     # generate each contracts
     return map(lambda idx, price: self.__generate_contract(idx, price, **_args_tail), range(total_contracts), _prices)
 
 
-  def __generate_contract(self, idx, price, unit, id_prefix='C', id_padding=6, max_extras=5, flatten=True, extra_generator=None):
+  def __generate_contract(self, idx, price, multiplier, id_prefix='C', id_padding=6, max_extras=5, flatten=True, extra_generator=None):
       num_extras = random.randint(1, max_extras)
       if extra_generator is None:
         extras = []
         for idx_extras in range(num_extras):
           extras.append(dict(
-            fare = random.randint(1,5) * unit,
+            fare = random.randint(1,5) * multiplier,
             type = random.randint(1,3),
             duration = random.randint(1, 12),
           ))
       else:
         extras = map(extra_generator, range(num_extras))
-      _contract = dict(id=number_to_id(idx, id_prefix, id_padding), fyp=price * unit, extras=extras)
+      _contract = dict(id=number_to_id(idx, id_prefix, id_padding), fyp=price * multiplier, extras=extras)
       if flatten:
         return flatten_sub_list(_contract)
       return _contract
@@ -331,16 +331,16 @@ def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A
   return faker.records
 
 
-def generate_contracts(total_contracts, contract_price, unit, **kwargs):
-  myargs = dict(total_contracts=total_contracts, contract_price=contract_price, unit=unit)
+def generate_contracts(total_contracts, contract_price, multiplier, **kwargs):
+  myargs = dict(total_contracts=total_contracts, contract_price=contract_price, multiplier=multiplier)
   myargs.update(kwargs)
   return ContractsFaker(**myargs).records
 
 
-def generate_purchases(contract_price, total_contracts, total_agents, unit, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
+def generate_purchases(contract_price, total_contracts, total_agents, multiplier, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
   agents_faker = AgentsFaker(total_agents, [])
 
-  contracts_faker = ContractsFaker(total_contracts, contract_price, unit,
+  contracts_faker = ContractsFaker(total_contracts, contract_price, multiplier,
       id_prefix=id_prefix,
       id_padding=id_padding,
       flatten=flatten)

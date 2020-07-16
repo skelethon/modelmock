@@ -23,18 +23,24 @@ from modelmock.user_info import Generator as UserGenerator
 class AgentsFaker(AbstractSeqFaker):
 
   def __init__(self, total_agents, level_mappings, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', language='en_US', **kwargs):
+    assert isinstance(total_agents, int) and total_agents > 0, '[total_agents] must be a positive integer'
     self.__total_agents = total_agents
-    assert isinstance(self.__total_agents, int) and self.__total_agents > 0,\
-        'total_agents must be a positive integer'
 
-    self.__level_mappings = level_mappings
-    assert isinstance(self.__level_mappings, list),\
-        'level_mappings must be a list'
+    assert level_mappings is None or isinstance(level_mappings, list), '[level_mappings] must be a list or None'
+    self.__level_mappings = level_mappings if level_mappings is not None else []
 
     self.__subpath = subpath
+
+    assert isinstance(id_prefix, str) and len(id_prefix) > 0, '[id_prefix] must be a non-empty string'
     self.__id_prefix = id_prefix
+
+    assert isinstance(id_padding, int) and id_padding > 0, '[id_padding] must be a positive integer'
     self.__id_padding = id_padding
+
+    assert isinstance(id_shuffle, bool), '[id_shuffle] must be a boolean value'
     self.__id_shuffle = id_shuffle
+
+    assert language is None or isinstance(language, str) and len(language) > 0, '[language] must be a non-empty string or None'
     self.__language = language
 
     self.__ids = None

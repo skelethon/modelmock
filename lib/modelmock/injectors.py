@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from modelmock.utils import dictify, isiterable
 import random
 
+TIMEDELTA_UNITS = ['weeks', 'days', 'hours', 'minutes', 'seconds', 'milliseconds', 'microseconds']
+
 class DateTimeInjector(object):
 
   def __init__(self, total, descriptors, begin=None, **kwargs):
@@ -48,21 +50,32 @@ class DateTimeRandomizer(object):
 
   def __init__(self, total, field_name, step=0, offset=0, offset_unit='days', delta_min=0, delta_max=0, delta_unit='days', format=None, **kwargs):
     self.__field_name = field_name
+
+    assert isinstance(offset, int), '[offset] must be an integer'
     self.__offset = offset
+
+    assert offset_unit in TIMEDELTA_UNITS, '[offset_unit] is empty or mismatched value'
     self.__offset_unit = offset_unit
 
     if self.__offset != 0:
-      self.__offset_calc = timedelta(**{self.__offset_unit: self.__offset})
+      self.__compiled_offset = timedelta(**{self.__offset_unit: self.__offset})
     else:
-      self.__offset_calc = None
+      self.__compiled_offset = None
 
+    assert isinstance(delta_min, int) and delta_min >= 0, '[delta_min] must be a non-negative integer'
     self.__delta_min = delta_min
+
+    assert isinstance(delta_max, int) and delta_max >= 0, '[delta_max] must be a non-negative integer'
     self.__delta_max = delta_max
+
+    assert delta_unit in TIMEDELTA_UNITS, '[delta_unit] is empty or mismatched value'
     self.__delta_unit = delta_unit
 
-    self.__step = step
-
+    assert isinstance(format, str), 'datetime [format] must be a string'
     self.__format = format
+
+    assert isinstance(step, int) and step >= 0, '[step] must be a non-negative integer'
+    self.__step = step
 
   @property
   def name(self):
@@ -80,8 +93,8 @@ class DateTimeRandomizer(object):
     current = datetime.now() if current is None else current
     assert isinstance(current, datetime)
 
-    if self.__offset_calc is not None:
-      current = current + self.__offset_calc
+    if self.__compiled_offset is not None:
+      current = current + self.__compiled_offset
 
     if 0 < self.__delta_max:
       _delta = 0

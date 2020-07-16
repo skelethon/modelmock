@@ -125,3 +125,16 @@ def generatorify(nodes, cloned=True):
       yield node.copy()
     else:
       yield node
+
+
+def pick_object_fields(obj, field_names=[]):
+  if len(field_names) == 0:
+    return obj
+  if isinstance(obj, dict):
+    return {k: v for k, v in obj.items() if k in field_names}
+  if isinstance(obj, object):
+    output = dict()
+    for field_name in field_names:
+      if hasattr(obj, field_name):
+        output[field_name] = getattr(obj, field_name)
+    return output

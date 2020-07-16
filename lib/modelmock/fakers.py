@@ -22,7 +22,7 @@ from modelmock.user_info import Generator as UserGenerator
 
 class AgentsFaker(AbstractSeqFaker):
 
-  def __init__(self, total_agents, level_mappings, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', language='vi_VN', **kwargs):
+  def __init__(self, total_agents, level_mappings, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', language='en_US', **kwargs):
     self.__total_agents = total_agents
     assert isinstance(self.__total_agents, int) and self.__total_agents > 0,\
         'total_agents must be a positive integer'

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-PYTHONPATH=./lib/ python3 -m modelmock generate purchases \
+PYTHONPATH=./lib/ \
+python3 -m modelmock generate purchases \
 --total_agents=100 \
 --total_contracts=600 \
 --contract_price=15 \

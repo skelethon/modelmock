@@ -19,11 +19,17 @@ python3 tests/units
 Generates a list of Agents:
 
 ```shell
-python3 tests/demo/random_agents.py
+bash tests/demo/random_agents.sh
 ```
 
 Generates a list of Contracts:
 
 ```shell
-python3 tests/demo/random_contracts.py
+bash tests/demo/random_contracts.sh
+```
+
+Generates a list of Purchases:
+
+```shell
+bash tests/demo/random_purchases.sh
 ```

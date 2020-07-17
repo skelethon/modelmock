@@ -5,8 +5,7 @@ import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../src')
 
-from modelmock.utils import array_random_split
-from modelmock.utils import flatten_sub_list
+from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child
 
 
 class array_random_split_test(unittest.TestCase):
@@ -54,3 +53,18 @@ class flatten_sub_list_test(unittest.TestCase):
 
   def test_flatten_sub_list_extras_is_undefined(self):
     self.assertIsNone(flatten_sub_list(None), None)
+
+
+class set_deep_child_test(unittest.TestCase):
+
+  def setUp(self):
+    pass
+
+  def test_set_deep_child_without_root(self):
+    self.assertEqual(set_deep_child(None), None)
+    self.assertEqual(set_deep_child(None, path=['none']), {'none': None})
+    self.assertEqual(set_deep_child('Hello world'), 'Hello world')
+    self.assertEqual(set_deep_child('Hello world', path=[]), 'Hello world')
+    self.assertEqual(set_deep_child('Hello world', path=['msg']), {'msg': 'Hello world'})
+    self.assertEqual(set_deep_child('Hello world', path=['msg', 0]), {'msg': {'0': 'Hello world'}})
+    self.assertEqual(set_deep_child('Hello world', path=['I', 'say']), {'I': {'say': 'Hello world'}})

@@ -45,6 +45,25 @@ def wrap_nodes(nodes, field_name=None):
     yield { field_name: node }
 
 
+def set_deep_child(node, root=None, path=[]):
+  if path is None or not isinstance(path, list):
+    return node
+
+  if root is not None and not isinstance(root, dict):
+    return node
+
+  _tmp = node
+  for i in range(len(path)):
+    _tmp = { str(path[-i-1]): _tmp }
+
+  if root is None:
+    root = _tmp
+  else:
+    root.update(_tmp)
+
+  return root
+
+
 def shuffle_nodes(nodes):
   new_nodes = np.array(list(nodes))
   np.random.shuffle(new_nodes)
@@ -138,3 +157,5 @@ def pick_object_fields(obj, field_names=[]):
       if hasattr(obj, field_name):
         output[field_name] = getattr(obj, field_name)
     return output
+
+

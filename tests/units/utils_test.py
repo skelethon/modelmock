@@ -68,3 +68,12 @@ class set_deep_child_test(unittest.TestCase):
     self.assertEqual(set_deep_child('Hello world', path=['msg']), {'msg': 'Hello world'})
     self.assertEqual(set_deep_child('Hello world', path=['msg', 0]), {'msg': {'0': 'Hello world'}})
     self.assertEqual(set_deep_child('Hello world', path=['I', 'say']), {'I': {'say': 'Hello world'}})
+
+  def test_set_deep_child_with_root(self):
+    self.assertEqual(set_deep_child(None, root={ 'id': 17779 }), None)
+    self.assertEqual(set_deep_child(None, root={ 'id': 17779 }, path=['none']), {'none': None, 'id': 17779})
+    self.assertEqual(set_deep_child('Hello world', root={ 'id': 17779 }), 'Hello world')
+    self.assertEqual(set_deep_child('Hello world', root={ 'id': 17779 }, path=[]), 'Hello world')
+    self.assertEqual(set_deep_child('Hello world', root={ 'id': 17779 }, path=['msg']), {'msg': 'Hello world', 'id': 17779})
+    self.assertEqual(set_deep_child('Hello world', root={ 'id': 17779 }, path=['msg', 0]), {'msg': {'0': 'Hello world'}, 'id': 17779})
+    self.assertEqual(set_deep_child('Hello world', root={ 'id': 17779 }, path=['I', 'say']), {'I': {'say': 'Hello world'}, 'id': 17779})

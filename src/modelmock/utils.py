@@ -56,6 +56,9 @@ def set_deep_child(node, root=None, path=[]):
   for i in range(len(path)):
     _tmp = { str(path[-i-1]): _tmp }
 
+  if not isinstance(_tmp, dict):
+    return node
+
   if root is None:
     root = _tmp
   else:

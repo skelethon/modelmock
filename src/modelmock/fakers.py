@@ -21,12 +21,12 @@ from modelmock.user_info import Generator as UserGenerator
 
 class IdentifiableSeqFaker(AbstractSeqFaker):
 
-  def __init__(self, total, id_method='incr', id_prefix='A', id_padding=4, id_shuffle=True, **kwargs):
+  def __init__(self, total, id_method=None, id_prefix='A', id_padding=4, id_shuffle=True, **kwargs):
     assert isinstance(total, int) and total > 0, '[total] must be a positive integer'
     self.__total = total
 
-    assert id_method in ['incr', 'uuid'], '[id_method] must be one of (incr, uuid)'
-    self.__id_method = id_method
+    assert id_method is None or isinstance(id_method, str), '[id_method] must be a string (incr, uuid)'
+    self.__id_method = 'incr' if id_method is None else id_method
 
     assert isinstance(id_prefix, str) and len(id_prefix) > 0, '[id_prefix] must be a non-empty string'
     self.__id_prefix = id_prefix
@@ -34,8 +34,10 @@ class IdentifiableSeqFaker(AbstractSeqFaker):
     assert isinstance(id_padding, int) and id_padding > 0, '[id_padding] must be a positive integer'
     self.__id_padding = id_padding
 
-    assert isinstance(id_shuffle, bool), '[id_shuffle] must be a boolean value'
-    self.__id_shuffle = id_shuffle
+    if isinstance(id_shuffle, str):
+      self.__id_shuffle = id_shuffle.lower() in ['yes', 'true', '1']
+    else:
+      self.__id_shuffle = bool(id_shuffle)
 
     self.__ids = None
 
@@ -57,7 +59,7 @@ class IdentifiableSeqFaker(AbstractSeqFaker):
 
 class AgentsFaker(IdentifiableSeqFaker):
 
-  def __init__(self, total_agents, level_mappings, id_method='incr', id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', locale='en_US', **kwargs):
+  def __init__(self, total_agents, level_mappings, id_method=None, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', locale='en_US', **kwargs):
     assert level_mappings is None or isinstance(level_mappings, list), '[level_mappings] must be a list or None'
     self.__level_mappings = level_mappings if level_mappings is not None else []
 
@@ -161,7 +163,7 @@ class AgentsFaker(IdentifiableSeqFaker):
 
 class CandidatesFaker(IdentifiableSeqFaker):
 
-  def __init__(self, total_candidates, id_method='incr', id_prefix='CAN', id_padding=10, id_shuffle=False, locale='en', **kwargs):
+  def __init__(self, total_candidates, id_method=None, id_prefix='CAN', id_padding=10, id_shuffle=False, locale='en', **kwargs):
     IdentifiableSeqFaker.__init__(self, total_candidates, id_method, id_prefix, id_padding, id_shuffle)
     self.__user_info_faker = UserGenerator(locale=locale)
 
@@ -282,12 +284,10 @@ class PurchasesFaker(AbstractSeqFaker):
 
   def __init__(self, agents_faker, contracts_faker, **kwargs):
     self.__agents_faker = agents_faker
-    assert isinstance(self.__agents_faker, AgentsFaker),\
-        'agents_faker must be an instance of AgentsFaker type'
+    assert isinstance(self.__agents_faker, AgentsFaker), '[agents_faker] must be an instance of AgentsFaker type'
 
     self.__contracts_faker = contracts_faker
-    assert isinstance(self.__contracts_faker, ContractsFaker),\
-        'contracts_faker must be an instance of ContractsFaker type'
+    assert isinstance(self.__contracts_faker, ContractsFaker), '[contracts_faker] must be an instance of ContractsFaker type'
 
   @property
   def total(self):
@@ -330,12 +330,22 @@ def generate_contracts(total_contracts, contract_price, multiplier, **kwargs):
   return ContractsFaker(**myargs).records
 
 
-def generate_purchases(total_agents, total_contracts, contract_price, multiplier, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
-  agents_faker = AgentsFaker(total_agents, [])
+def generate_purchases(total_agents, total_contracts, contract_price, multiplier,
+    agent_id_method=None, agent_id_prefix='CONTR', agent_id_padding=6, agent_id_shuffle=True,
+    contract_id_method=None, contract_id_prefix='CONTR', contract_id_padding=6, contract_id_shuffle=True,
+    flatten=True, chunky=None):
+
+  agents_faker = AgentsFaker(total_agents, [],
+      id_method=agent_id_method,
+      id_prefix=agent_id_prefix,
+      id_padding=agent_id_padding,
+      id_shuffle=agent_id_shuffle)
 
   contracts_faker = ContractsFaker(total_contracts, contract_price, multiplier,
-      id_prefix=id_prefix,
-      id_padding=id_padding,
+      id_method=contract_id_method,
+      id_prefix=contract_id_prefix,
+      id_padding=contract_id_padding,
+      id_shuffle=contract_id_shuffle,
       flatten=flatten)
 
   return PurchasesFaker(agents_faker, contracts_faker).records

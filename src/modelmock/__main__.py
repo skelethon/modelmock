@@ -25,7 +25,7 @@ def main(argv=sys.argv):
   generate_agents_parser.add_argument("--id_prefix", type=str, default="AGENT", help="Prefix of the Agent IDs")
   generate_agents_parser.add_argument("--id_padding", type=int, default=4, help="Length of padded numbers of IDs")
   generate_agents_parser.add_argument("--id_shuffle", type=str, default="true", choices=CHOICES_VALUE, help="The IDs will be shuffled or not")
-  generate_agents_parser.add_argument("--language", type=str, help="The language which used to generate the user information (phone, email, name, ...)")
+  generate_agents_parser.add_argument("--locale", type=str, help="The locale which used to generate the user information (phone, email, name, ...)")
 
   generate_candidates_parser = generate_subparsers.add_parser('candidates', help='Generate a collection of candidates')
   generate_candidates_parser.add_argument("--total", type=int, help="Number of candidates will be generated")
@@ -54,7 +54,7 @@ def main(argv=sys.argv):
         id_prefix=args.id_prefix,
         id_padding=args.id_padding,
         id_shuffle=(args.id_shuffle is not None and args.id_shuffle.lower() in ['true', 'yes', '1']),
-        language=args.language,
+        locale=args.locale,
       )))
       return 0
     if args.generated_target == 'candidates':

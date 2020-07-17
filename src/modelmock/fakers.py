@@ -22,7 +22,7 @@ from modelmock.user_info import Generator as UserGenerator
 
 class AgentsFaker(AbstractSeqFaker):
 
-  def __init__(self, total_agents, level_mappings, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', language='en_US', **kwargs):
+  def __init__(self, total_agents, level_mappings, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', locale='en_US', **kwargs):
     assert isinstance(total_agents, int) and total_agents > 0, '[total_agents] must be a positive integer'
     self.__total_agents = total_agents
 
@@ -40,8 +40,8 @@ class AgentsFaker(AbstractSeqFaker):
     assert isinstance(id_shuffle, bool), '[id_shuffle] must be a boolean value'
     self.__id_shuffle = id_shuffle
 
-    assert language is None or isinstance(language, str) and len(language) > 0, '[language] must be a non-empty string or None'
-    self.__language = language
+    assert locale is None or isinstance(locale, str) and len(locale) > 0, '[locale] must be a non-empty string or None'
+    self.__locale = locale
 
     self.__ids = None
 
@@ -61,11 +61,11 @@ class AgentsFaker(AbstractSeqFaker):
         subpath=self.__subpath,
         id_prefix=self.__id_prefix,
         id_padding=self.__id_padding,
-        language=self.__language)
+        locale=self.__locale)
 
   @classmethod
-  def _generate_agents(cls, agent_ids, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
-    _records = UserGenerator(language=language).inject_user_info(
+  def _generate_agents(cls, agent_ids, level_mappings, subpath='record', id_prefix='A', id_padding=4, locale='en'):
+    _records = UserGenerator(locale=locale).inject_user_info(
       flatten_sub_dict(
         generatorify(
           cls._expand_tree_path(
@@ -153,18 +153,18 @@ class AgentsFaker(AbstractSeqFaker):
 
 class CandidatesFaker(AbstractSeqFaker):
 
-  def __init__(self, total_candidates, id_prefix='CAN', id_padding=10, id_shuffle=False, language='en', **kwargs):
+  def __init__(self, total_candidates, id_prefix='CAN', id_padding=10, id_shuffle=False, locale='en', **kwargs):
     self.__total_candidates = total_candidates
     assert isinstance(self.__total_candidates, int) and self.__total_candidates > 0,\
         'total_candidates must be a positive integer'
 
-    _language = kwargs['language'] if 'language' in kwargs else None
-    self.__user_info_faker = UserGenerator(language=_language)
+    _locale = kwargs['locale'] if 'locale' in kwargs else None
+    self.__user_info_faker = UserGenerator(locale=_locale)
 
     self.__id_prefix = id_prefix
     self.__id_padding = id_padding
     self.__id_shuffle = id_shuffle
-    self.__language = language
+    self.__locale = locale
 
     self.__ids = None
 
@@ -328,12 +328,12 @@ class PurchasesFaker(AbstractSeqFaker):
 # [END PurchasesFaker]
 
 
-def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, language='en'):
+def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, locale='en'):
   faker = AgentsFaker(total_agents, level_mappings,
       subpath=subpath,
       id_prefix=id_prefix,
       id_padding=id_padding,
-      language=language)
+      locale=locale)
   return faker.records
 
 

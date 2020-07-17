@@ -44,4 +44,4 @@ python3 -m modelmock generate agents \
 --mappings="$LEVEL_MAPPINGS" \
 --id_padding=6 \
 --id_shuffle=yes \
---language=vi_VN
+--locale=vi_VN

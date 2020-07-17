@@ -12,12 +12,12 @@ class Generator(object):
   def __init__(self, **kwargs):
     self.__uniqset_emails = []
     self.__uniqset_phones = []
-    self.__language = kwargs['language'] if 'language' in kwargs and isinstance(kwargs['language'], str) else None
+    self.__locale = kwargs['locale'] if 'locale' in kwargs and isinstance(kwargs['locale'], str) else None
 
     self.__faker_seeds = default_personal_lookup
-    if self.__language is not None:
+    if self.__locale is not None:
       try:
-        _seeds_collection = importlib.import_module(SEED_PACKAGE_PREFIX + self.__language)
+        _seeds_collection = importlib.import_module(SEED_PACKAGE_PREFIX + self.__locale)
         self.__faker_seeds = _seeds_collection.personal_lookup
       except ModuleNotFoundError as not_found_err:
         raise not_found_err

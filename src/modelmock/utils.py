@@ -2,6 +2,7 @@
 
 import numpy as np
 import random
+import shortuuid
 
 def array_random_split(arr, n, empty_accepted=False):
   ret = []
@@ -29,6 +30,10 @@ def generate_ids(max, prefix='A', padding=4, shuffle=False):
     random.shuffle(_ids)
   return map(lambda x: number_to_id(x, prefix=prefix, padding=padding), _ids)
 
+
+def generate_uuids(max):
+  for i in range(max):
+    yield shortuuid.uuid()
 
 def dictify(data=None, nested_field_name='nested_data'):
   if isinstance(data, dict):

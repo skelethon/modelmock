@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHONPATH=./src/ \
+PYTHONPATH=./src \
 python3 -m modelmock generate purchases \
 --total_agents=100 \
 --total_contracts=600 \

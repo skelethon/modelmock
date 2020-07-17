@@ -38,10 +38,11 @@ read -r -d '' LEVEL_MAPPINGS <<EOF
 ]
 EOF
 
-PYTHONPATH=./src/ \
+PYTHONPATH=./src \
 python3 -m modelmock generate agents \
 --total=10 \
 --mappings="$LEVEL_MAPPINGS" \
+--id_method=incr \
 --id_padding=6 \
 --id_shuffle=yes \
 --locale=vi_VN

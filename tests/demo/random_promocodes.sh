@@ -1,5 +1,5 @@
 #!/bin/bash
 
-PYTHONPATH=./src/ \
+PYTHONPATH=./src \
 python3 -m modelmock generate promocodes \
 --total=10000

@@ -7,6 +7,7 @@ from modelmock.utils import (
   chunkify,
   number_to_id,
   generate_ids,
+  generate_uuids,
   generatorify,
   shuffle_nodes,
   list_to_dict,
@@ -22,7 +23,7 @@ from modelmock.user_info import Generator as UserGenerator
 
 class AgentsFaker(AbstractSeqFaker):
 
-  def __init__(self, total_agents, level_mappings, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', locale='en_US', **kwargs):
+  def __init__(self, total_agents, level_mappings, id_method='incr', id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', locale='en_US', **kwargs):
     assert isinstance(total_agents, int) and total_agents > 0, '[total_agents] must be a positive integer'
     self.__total_agents = total_agents
 
@@ -30,6 +31,9 @@ class AgentsFaker(AbstractSeqFaker):
     self.__level_mappings = level_mappings if level_mappings is not None else []
 
     self.__subpath = subpath
+
+    assert id_method in ['incr', 'uuid'], '[id_method] must be one of (incr, uuid)'
+    self.__id_method = id_method
 
     assert isinstance(id_prefix, str) and len(id_prefix) > 0, '[id_prefix] must be a non-empty string'
     self.__id_prefix = id_prefix
@@ -52,7 +56,10 @@ class AgentsFaker(AbstractSeqFaker):
   @property
   def ids(self):
     if self.__ids is None:
-      self.__ids = generate_ids(self.__total_agents, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
+      if self.__id_method == 'uuid':
+        self.__ids = generate_uuids(self.__total_agents)
+      else:
+        self.__ids = generate_ids(self.__total_agents, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
     return self.__ids
 
   @property

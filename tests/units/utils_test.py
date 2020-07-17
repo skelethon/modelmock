@@ -3,7 +3,7 @@
 import unittest
 import os, sys
 
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../lib')
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../src')
 
 from modelmock.utils import array_random_split
 from modelmock.utils import flatten_sub_list

@@ -38,7 +38,7 @@ read -r -d '' LEVEL_MAPPINGS <<EOF
 ]
 EOF
 
-PYTHONPATH=./lib/ \
+PYTHONPATH=./src/ \
 python3 -m modelmock generate agents \
 --total=10 \
 --mappings="$LEVEL_MAPPINGS" \

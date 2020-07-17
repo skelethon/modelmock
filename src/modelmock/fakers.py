@@ -19,18 +19,11 @@ from modelmock.utils import (
 from modelmock.user_info import Generator as UserGenerator
 
 
-# [BEGIN AgentsFaker]
+class IdentifiableSeqFaker(AbstractSeqFaker):
 
-class AgentsFaker(AbstractSeqFaker):
-
-  def __init__(self, total_agents, level_mappings, id_method='incr', id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', locale='en_US', **kwargs):
-    assert isinstance(total_agents, int) and total_agents > 0, '[total_agents] must be a positive integer'
-    self.__total_agents = total_agents
-
-    assert level_mappings is None or isinstance(level_mappings, list), '[level_mappings] must be a list or None'
-    self.__level_mappings = level_mappings if level_mappings is not None else []
-
-    self.__subpath = subpath
+  def __init__(self, total, id_method='incr', id_prefix='A', id_padding=4, id_shuffle=True, **kwargs):
+    assert isinstance(total, int) and total > 0, '[total] must be a positive integer'
+    self.__total = total
 
     assert id_method in ['incr', 'uuid'], '[id_method] must be one of (incr, uuid)'
     self.__id_method = id_method
@@ -44,34 +37,44 @@ class AgentsFaker(AbstractSeqFaker):
     assert isinstance(id_shuffle, bool), '[id_shuffle] must be a boolean value'
     self.__id_shuffle = id_shuffle
 
-    assert locale is None or isinstance(locale, str) and len(locale) > 0, '[locale] must be a non-empty string or None'
-    self.__locale = locale
-
     self.__ids = None
 
   @property
   def total(self):
-    return self.__total_agents
+    return self.__total
 
   @property
   def ids(self):
     if self.__ids is None:
       if self.__id_method == 'uuid':
-        self.__ids = generate_uuids(self.__total_agents)
+        self.__ids = generate_uuids(self.total)
       else:
-        self.__ids = generate_ids(self.__total_agents, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
+        self.__ids = generate_ids(self.total, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
     return self.__ids
+
+
+# [BEGIN AgentsFaker]
+
+class AgentsFaker(IdentifiableSeqFaker):
+
+  def __init__(self, total_agents, level_mappings, id_method='incr', id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', locale='en_US', **kwargs):
+    assert level_mappings is None or isinstance(level_mappings, list), '[level_mappings] must be a list or None'
+    self.__level_mappings = level_mappings if level_mappings is not None else []
+
+    assert locale is None or isinstance(locale, str) and len(locale) > 0, '[locale] must be a non-empty string or None'
+    self.__locale = locale
+
+    assert subpath is None or isinstance(subpath, str) and len(subpath) > 0, '[subpath] must be a non-empty string or None'
+    self.__subpath = subpath
+
+    IdentifiableSeqFaker.__init__(self, total_agents, id_method, id_prefix, id_padding, id_shuffle)
 
   @property
   def records(self):
-    return self._generate_agents(self.ids, self.__level_mappings,
-        subpath=self.__subpath,
-        id_prefix=self.__id_prefix,
-        id_padding=self.__id_padding,
-        locale=self.__locale)
+    return self._generate_agents(self.ids, self.__level_mappings, subpath=self.__subpath, locale=self.__locale)
 
   @classmethod
-  def _generate_agents(cls, agent_ids, level_mappings, subpath='record', id_prefix='A', id_padding=4, locale='en'):
+  def _generate_agents(cls, agent_ids, level_mappings, subpath='record', locale='en'):
     _records = UserGenerator(locale=locale).inject_user_info(
       flatten_sub_dict(
         generatorify(
@@ -83,7 +86,6 @@ class AgentsFaker(AbstractSeqFaker):
         )
       )
     )
-
     if isinstance(subpath, str):
       return map(lambda item: { subpath: item }, _records)
     else:
@@ -335,8 +337,8 @@ class PurchasesFaker(AbstractSeqFaker):
 # [END PurchasesFaker]
 
 
-def generate_agents(total_agents, level_mappings, subpath='record', id_prefix='A', id_padding=4, locale='en'):
-  faker = AgentsFaker(total_agents, level_mappings,
+def generate_agents(total, level_mappings, subpath='record', id_prefix='A', id_padding=4, locale='en'):
+  faker = AgentsFaker(total, level_mappings,
       subpath=subpath,
       id_prefix=id_prefix,
       id_padding=id_padding,

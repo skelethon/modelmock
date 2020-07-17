@@ -61,21 +61,20 @@ class AgentsFaker(IdentifiableSeqFaker):
     assert level_mappings is None or isinstance(level_mappings, list), '[level_mappings] must be a list or None'
     self.__level_mappings = level_mappings if level_mappings is not None else []
 
-    assert locale is None or isinstance(locale, str) and len(locale) > 0, '[locale] must be a non-empty string or None'
-    self.__locale = locale
-
     assert subpath is None or isinstance(subpath, str) and len(subpath) > 0, '[subpath] must be a non-empty string or None'
     self.__subpath = subpath
+
+    self.__user_info_faker = UserGenerator(locale=locale)
 
     IdentifiableSeqFaker.__init__(self, total_agents, id_method, id_prefix, id_padding, id_shuffle)
 
   @property
   def records(self):
-    return self._generate_agents(self.ids, self.__level_mappings, subpath=self.__subpath, locale=self.__locale)
+    return self._generate_agents(self.ids, self.__level_mappings, self.__user_info_faker, subpath=self.__subpath)
 
   @classmethod
-  def _generate_agents(cls, agent_ids, level_mappings, subpath='record', locale='en'):
-    _records = UserGenerator(locale=locale).inject_user_info(
+  def _generate_agents(cls, agent_ids, level_mappings, user_info_faker, subpath='record'):
+    _records = user_info_faker.inject_user_info(
       flatten_sub_dict(
         generatorify(
           cls._expand_tree_path(
@@ -160,32 +159,11 @@ class AgentsFaker(IdentifiableSeqFaker):
 
 # [BEGIN CandidatesFaker]
 
-class CandidatesFaker(AbstractSeqFaker):
+class CandidatesFaker(IdentifiableSeqFaker):
 
-  def __init__(self, total_candidates, id_prefix='CAN', id_padding=10, id_shuffle=False, locale='en', **kwargs):
-    self.__total_candidates = total_candidates
-    assert isinstance(self.__total_candidates, int) and self.__total_candidates > 0,\
-        'total_candidates must be a positive integer'
-
-    _locale = kwargs['locale'] if 'locale' in kwargs else None
-    self.__user_info_faker = UserGenerator(locale=_locale)
-
-    self.__id_prefix = id_prefix
-    self.__id_padding = id_padding
-    self.__id_shuffle = id_shuffle
-    self.__locale = locale
-
-    self.__ids = None
-
-  @property
-  def ids(self):
-    if self.__ids is None:
-      self.__ids = generate_ids(self.__total_candidates, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
-    return self.__ids
-
-  @property
-  def total(self):
-    return self.__total_candidates
+  def __init__(self, total_candidates, id_method='incr', id_prefix='CAN', id_padding=10, id_shuffle=False, locale='en', **kwargs):
+    IdentifiableSeqFaker.__init__(self, total_candidates, id_method, id_prefix, id_padding, id_shuffle)
+    self.__user_info_faker = UserGenerator(locale=locale)
 
   @property
   def records(self):
@@ -352,7 +330,7 @@ def generate_contracts(total_contracts, contract_price, multiplier, **kwargs):
   return ContractsFaker(**myargs).records
 
 
-def generate_purchases(contract_price, total_contracts, total_agents, multiplier, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
+def generate_purchases(total_agents, total_contracts, contract_price, multiplier, id_prefix='CONTR', id_padding=6, flatten=True, chunky=None):
   agents_faker = AgentsFaker(total_agents, [])
 
   contracts_faker = ContractsFaker(total_contracts, contract_price, multiplier,

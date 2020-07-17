@@ -76,9 +76,6 @@ class AgentsFaker(IdentifiableSeqFaker):
 
   @classmethod
   def _assign_levels(cls, super_id, indices, levels):
-    if not isinstance(indices, list):
-      raise TypeError('indices is invalid')
-
     ret = []
 
     if not isinstance(indices, list) or len(indices) == 0:
@@ -88,12 +85,7 @@ class AgentsFaker(IdentifiableSeqFaker):
       levels = levels[1:]
       if len(levels) == 0:
         for i in indices:
-          item = dict(
-            level=current['level'],
-            index=i,
-            super=super_id
-          )
-          ret.append(item)
+          ret.append(dict(level=current['level'], index=i, super=super_id))
       else:
         # determines the number of branches
         if 'count' in current:
@@ -111,11 +103,7 @@ class AgentsFaker(IdentifiableSeqFaker):
         for child in child_group:
           first_index = child[0]
           subchild = child[1:]
-          ret.append(dict(
-            level=current['level'],
-            index=first_index,
-            super=super_id
-          ))
+          ret.append(dict(level=current['level'], index=first_index, super=super_id))
           ret = ret + cls._assign_levels(first_index, subchild, levels = levels)
     return ret
 
@@ -178,34 +166,22 @@ class PromotionCodeFaker(AbstractSeqFaker):
 
 # [BEGIN ContractsFaker]
 
-class ContractsFaker(AbstractSeqFaker):
+class ContractsFaker(IdentifiableSeqFaker):
 
-  def __init__(self, total_contracts, contract_price, multiplier=1, id_prefix='CONTR', id_padding=6, id_shuffle=False, flatten=True, **kwargs):
-    self.__total_contracts = total_contracts
-    assert isinstance(self.__total_contracts, int) and self.__total_contracts > 0, '[total_contracts] must be a positive integer'
-
+  def __init__(self, total_contracts, contract_price, multiplier=1, id_method=None, id_prefix='CONTR', id_padding=6, id_shuffle=False, flatten=True, **kwargs):
     self.__contract_price = contract_price
     assert isinstance(self.__contract_price, int) and self.__contract_price > 0, '[contract_price] must be a positive integer'
 
     self.__multiplier = multiplier
-    self.__id_prefix = id_prefix
-    self.__id_padding = id_padding
-    self.__id_shuffle = id_shuffle
     self.__flatten = flatten
 
-  @property
-  def total(self):
-    return self.__total_contracts
+    IdentifiableSeqFaker.__init__(self, total_contracts, id_method, id_prefix, id_padding, id_shuffle)
 
   @property
   def records(self):
-    return self.__generate_contracts(self.__total_contracts, self.__contract_price,
-        multiplier=self.__multiplier,
-        id_prefix=self.__id_prefix,
-        id_padding=self.__id_padding,
-        flatten=self.__flatten)
+    return self.__generate_contracts(self.total, self.__contract_price, self.__multiplier, flatten=self.__flatten)
 
-  def __generate_contracts(self, total_contracts, contract_price, multiplier, id_prefix='CONTR', id_padding=6, flatten=True):
+  def __generate_contracts(self, total_contracts, contract_price, multiplier, flatten=True):
     # estimate the revenue ~ price * total
     _revenue = contract_price * total_contracts
 
@@ -213,13 +189,13 @@ class ContractsFaker(AbstractSeqFaker):
     _prices = random_fixed_sum_array(_revenue, total_contracts)
 
     # common kwargs
-    _args_tail = dict(multiplier=multiplier, id_prefix=id_prefix, id_padding=id_padding, flatten=flatten)
+    _args_tail = dict(multiplier=multiplier, flatten=flatten)
 
     # generate each contracts
-    return map(lambda idx, price: self.__generate_contract(idx, price, **_args_tail), range(total_contracts), _prices)
+    return map(lambda idx, price: self.__generate_contract(idx, price, **_args_tail), self.ids, _prices)
 
 
-  def __generate_contract(self, idx, price, multiplier, id_prefix='C', id_padding=6, max_extras=5, flatten=True, extra_generator=None):
+  def __generate_contract(self, idx, price, multiplier, max_extras=5, flatten=True, extra_generator=None):
       num_extras = random.randint(1, max_extras)
       if extra_generator is None:
         extras = []
@@ -231,7 +207,7 @@ class ContractsFaker(AbstractSeqFaker):
           ))
       else:
         extras = map(extra_generator, range(num_extras))
-      _contract = dict(id=number_to_id(idx, id_prefix, id_padding), fyp=price * multiplier, extras=extras)
+      _contract = dict(id=idx, fyp=price * multiplier, extras=extras)
       if flatten:
         return flatten_sub_list(_contract)
       return _contract
@@ -291,10 +267,9 @@ def generate_contracts(total_contracts, contract_price, multiplier, **kwargs):
   return ContractsFaker(**myargs).records
 
 
-def generate_purchases(total_agents, total_contracts, contract_price, multiplier,
-    agent_id_method=None, agent_id_prefix='CONTR', agent_id_padding=6, agent_id_shuffle=True,
-    contract_id_method=None, contract_id_prefix='CONTR', contract_id_padding=6, contract_id_shuffle=True,
-    flatten=True, chunky=None):
+def generate_purchases(total_agents, total_contracts, contract_price, multiplier, flatten=True,
+    agent_id_method=None, agent_id_prefix='AGENT', agent_id_padding=6, agent_id_shuffle=True,
+    contract_id_method=None, contract_id_prefix='CONTR', contract_id_padding=6, contract_id_shuffle=True):
 
   agents_faker = AgentsFaker(total_agents, [],
       id_method=agent_id_method,

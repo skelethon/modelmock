@@ -165,5 +165,3 @@ def pick_object_fields(obj, field_names=[]):
       if hasattr(obj, field_name):
         output[field_name] = getattr(obj, field_name)
     return output
-
-

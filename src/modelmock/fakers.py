@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
 import random
-from modelmock.abc import AbstractSeqFaker
+from modelmock.abc import AbstractSeqFaker, IdentifiableSeqFaker
 from modelmock.utils import (
   array_random_split,
   chunkify,
   number_to_id,
   generate_ids,
-  generate_uuids,
   generatorify,
   shuffle_nodes,
   list_to_dict,
@@ -17,42 +16,6 @@ from modelmock.utils import (
   wrap_nodes,
 )
 from modelmock.user_info import Generator as UserGenerator
-
-
-class IdentifiableSeqFaker(AbstractSeqFaker):
-
-  def __init__(self, total, id_method=None, id_prefix='A', id_padding=4, id_shuffle=True, **kwargs):
-    assert isinstance(total, int) and total > 0, '[total] must be a positive integer'
-    self.__total = total
-
-    assert id_method is None or isinstance(id_method, str), '[id_method] must be a string (incr, uuid)'
-    self.__id_method = 'incr' if id_method is None else id_method
-
-    assert isinstance(id_prefix, str) and len(id_prefix) > 0, '[id_prefix] must be a non-empty string'
-    self.__id_prefix = id_prefix
-
-    assert isinstance(id_padding, int) and id_padding > 0, '[id_padding] must be a positive integer'
-    self.__id_padding = id_padding
-
-    if isinstance(id_shuffle, str):
-      self.__id_shuffle = id_shuffle.lower() in ['yes', 'true', '1']
-    else:
-      self.__id_shuffle = bool(id_shuffle)
-
-    self.__ids = None
-
-  @property
-  def total(self):
-    return self.__total
-
-  @property
-  def ids(self):
-    if self.__ids is None:
-      if self.__id_method == 'uuid':
-        self.__ids = generate_uuids(self.total)
-      else:
-        self.__ids = generate_ids(self.total, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
-    return self.__ids
 
 
 # [BEGIN AgentsFaker]
@@ -219,12 +182,10 @@ class ContractsFaker(AbstractSeqFaker):
 
   def __init__(self, total_contracts, contract_price, multiplier=1, id_prefix='CONTR', id_padding=6, id_shuffle=False, flatten=True, **kwargs):
     self.__total_contracts = total_contracts
-    assert isinstance(self.__total_contracts, int) and self.__total_contracts > 0,\
-        'total_contracts must be a positive integer'
+    assert isinstance(self.__total_contracts, int) and self.__total_contracts > 0, '[total_contracts] must be a positive integer'
 
     self.__contract_price = contract_price
-    assert isinstance(self.__contract_price, int) and self.__contract_price > 0,\
-        'contract_price must be a positive integer'
+    assert isinstance(self.__contract_price, int) and self.__contract_price > 0, '[contract_price] must be a positive integer'
 
     self.__multiplier = multiplier
     self.__id_prefix = id_prefix

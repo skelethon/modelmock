@@ -5,7 +5,7 @@ import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../src')
 
-from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child
+from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names
 
 
 class array_random_split_test(unittest.TestCase):
@@ -77,3 +77,28 @@ class set_deep_child_test(unittest.TestCase):
     self.assertEqual(set_deep_child('Hello world', root={ 'id': 17779 }, path=['msg']), {'msg': 'Hello world', 'id': 17779})
     self.assertEqual(set_deep_child('Hello world', root={ 'id': 17779 }, path=['msg', 0]), {'msg': {'0': 'Hello world'}, 'id': 17779})
     self.assertEqual(set_deep_child('Hello world', root={ 'id': 17779 }, path=['I', 'say']), {'I': {'say': 'Hello world'}, 'id': 17779})
+
+
+class transform_dict_item_names_test(unittest.TestCase):
+
+  def setUp(self):
+    pass
+
+  def test_transform_dict_item_names_ok(self):
+    record = dict(p1=1024, p2='Hello world', p3=True, p4=None, p5=[1, 2, 3])
+    self.assertEqual(transform_dict_item_names(record, mappings={ 'p1': 'int', 'p2': 'str' }), {
+      'int': 1024,
+      'str': 'Hello world',
+      'p3': True,
+      'p4': None,
+      'p5': [1, 2, 3],
+    })
+
+  def test_transform_dict_item_names_with_not_dicttype_record(self):
+    self.assertEqual(transform_dict_item_names(None, {'p1': 'int'}), None)
+    self.assertEqual(transform_dict_item_names(1234, {'p1': 'int'}), 1234)
+    self.assertEqual(transform_dict_item_names([1, 2], {'p1': 'int'}), [1, 2])
+
+  def test_transform_dict_item_names_with_not_dicttype_mappings(self):
+    self.assertEqual(transform_dict_item_names(dict(p1=1234), None), {'p1': 1234})
+    self.assertEqual(transform_dict_item_names(dict(p1=1234), 1234), {'p1': 1234})

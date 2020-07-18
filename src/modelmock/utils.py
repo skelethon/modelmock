@@ -165,3 +165,17 @@ def pick_object_fields(obj, field_names=[]):
       if hasattr(obj, field_name):
         output[field_name] = getattr(obj, field_name)
     return output
+
+
+def transform_dict_item_names(data, mappings={}):
+  if not isinstance(data, dict):
+    return data
+  if not isinstance(mappings, dict) or len(mappings) == 0:
+    return data
+  _newdata = dict()
+  for key in data.keys():
+    if key in mappings:
+      _newdata[str(mappings[key])] = data[key]
+    else:
+      _newdata[key] = data[key]
+  return _newdata

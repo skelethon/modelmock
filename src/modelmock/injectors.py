@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 from datetime import datetime, timedelta
+from modelmock.abc import AbstractInjector
 from modelmock.utils import dictify, isiterable
 import random
 
 TIMEDELTA_UNITS = ['weeks', 'days', 'hours', 'minutes', 'seconds', 'milliseconds', 'microseconds']
 
-class DateTimeInjector(object):
+class DateTimeInjector(AbstractInjector):
 
   def __init__(self, total, descriptors, begin=None, **kwargs):
     assert isinstance(total, int) and total > 0, 'total must be a positive integer'

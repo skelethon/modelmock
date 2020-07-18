@@ -59,3 +59,21 @@ class IdentifiableSeqFaker(AbstractSeqFaker):
       else:
         self.__ids = generate_ids(self.total, prefix=self.__id_prefix, padding=self.__id_padding, shuffle=self.__id_shuffle)
     return self.__ids
+
+
+class AbstractInjector(metaclass=abc.ABCMeta):
+
+  def __init__(self, **kwargs):
+    pass
+
+  @abc.abstractmethod
+  def inject(self, data):
+    pass
+
+  @classmethod
+  def __subclasshook__(cls, C):
+    if cls is AbstractInjector:
+      attrs = set(dir(C))
+      if set(cls.__abstractmethods__) <= attrs:
+        return True
+    return NotImplemented

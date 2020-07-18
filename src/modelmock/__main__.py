@@ -5,7 +5,7 @@ import json
 import sys
 from pprint import pprint
 from elgoogapi.auth.oauthlib.flow import authorize
-from modelmock.fakers import AgentsFaker, CandidatesFaker, PromotionCodeFaker, ContractsFaker
+from modelmock.fakers import AgentsFaker, CandidatesFaker, PromocodesFaker, ContractsFaker
 from modelmock.fakers import generate_purchases
 from modelmock.utils import pick_object_fields
 
@@ -71,7 +71,7 @@ def main(argv=sys.argv):
       display(CandidatesFaker(args.total))
       return 0
     if args.generated_target in ['promocodes', 'promotion-codes', 'promotion_codes']:
-      display(PromotionCodeFaker(args.total))
+      display(PromocodesFaker(args.total))
       return 0
     if args.generated_target == 'contracts':
       display(ContractsFaker(**dict(

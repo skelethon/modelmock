@@ -4,11 +4,8 @@ import random
 from modelmock.abc import AbstractSeqFaker, IdentifiableSeqFaker
 from modelmock.utils import (
   array_random_split,
-  chunkify,
-  number_to_id,
   generate_ids,
   generatorify,
-  shuffle_nodes,
   list_to_dict,
   flatten_sub_dict,
   flatten_sub_list,
@@ -125,18 +122,16 @@ class CandidatesFaker(IdentifiableSeqFaker):
 # [END CandidatesFaker]
 
 
-# [BEGIN PromotionCodeFaker]
+# [BEGIN PromocodesFaker]
 
-class PromotionCodeFaker(AbstractSeqFaker):
+class PromocodesFaker(AbstractSeqFaker):
 
   def __init__(self, total_codes, spread_limit=5, **kwargs):
+    assert isinstance(total_codes, int) and total_codes > 0, '[total_codes] must be a positive integer'
     self.__total_codes = total_codes
-    assert isinstance(self.__total_codes, int) and self.__total_codes > 0,\
-        'total_codes must be a positive integer'
 
+    assert isinstance(spread_limit, int) and spread_limit > 0 and spread_limit <= total_codes, '[spread_limit] must be a positive integer'
     self.__spread_limit = spread_limit
-    assert isinstance(self.__spread_limit, int) and self.__spread_limit > 0 and self.__spread_limit <= self.__total_codes,\
-        'spread_limit must be a positive integer'
 
     self.__referral_targets = dict()
 
@@ -161,7 +156,7 @@ class PromotionCodeFaker(AbstractSeqFaker):
       _referral_code = _avail_codes[random.randint(0, len(_avail_codes) - 1)]
     return _referral_code
 
-# [END PromotionCodeFaker]
+# [END PromocodesFaker]
 
 
 # [BEGIN ContractsFaker]

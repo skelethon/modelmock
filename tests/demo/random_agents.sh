@@ -39,7 +39,7 @@ read -r -d '' LEVEL_MAPPINGS <<EOF
 EOF
 
 PYTHONPATH=./src \
-python3 -m modelmock generate agents \
+python3 -B -m modelmock generate agents \
 --total=10 \
 --mappings="$LEVEL_MAPPINGS" \
 --id_method=incr \

@@ -195,7 +195,7 @@ class ContractsFaker(IdentifiableSeqFaker):
         self.ids, _prices, _extra_descriptors)
 
   @staticmethod
-  def generate_contract(idx, price, multiplier, extra_descriptor=dict(), extra_generator=None, flatten=True):
+  def generate_contract(id, price, multiplier, extra_descriptor=dict(), extra_generator=None, flatten=True):
     total_min = get_dict_item(extra_descriptor, 'total_min', 1)
     total_max = get_dict_item(extra_descriptor, 'total_max', 10)
     price_choices = get_dict_item(extra_descriptor, 'price_choices', range(2, 6))
@@ -205,7 +205,7 @@ class ContractsFaker(IdentifiableSeqFaker):
     num_extras = random.randint(total_min, total_max)
     if extra_generator is None:
       extras = []
-      for idx_extras in range(num_extras):
+      for id_extras in range(num_extras):
         extras.append(dict(
           fare = random.choice(price_choices) * multiplier,
           type = random.choice(type_choices),
@@ -214,7 +214,7 @@ class ContractsFaker(IdentifiableSeqFaker):
     else:
       extras = map(extra_generator, range(num_extras))
 
-    _contract = dict(id=idx, fyp=price * multiplier, extras=extras)
+    _contract = dict(id=id, fyp=price * multiplier, extras=extras)
 
     if flatten:
       return flatten_sub_list(_contract, list_name='extras', prefix='extra')

@@ -44,10 +44,12 @@ def dictify(data=None, nested_field_name='nested_data'):
 
 
 def wrap_nodes(nodes, field_name=None):
-  if not isiterable(nodes) or not isinstance(field_name, str):
-    return nodes
-  for node in nodes:
-    yield { field_name: node }
+  if not isinstance(field_name, str):
+    for node in nodes:
+      yield node
+  else:
+    for node in nodes:
+      yield { field_name: node }
 
 
 def set_deep_child(node, root=None, path=[]):
@@ -105,8 +107,7 @@ def random_fixed_sum_array(_sum, n):
 
 
 def flatten_sub_dict(nodes, subdict_name='refs', prefix='REFS'):
-  if not isiterable(nodes):
-    return nodes
+  assert isiterable(nodes)
   for node in nodes:
     if isinstance(node, dict) and subdict_name in node and isinstance(node[subdict_name], dict):
       for _ref_label in node[subdict_name].keys():

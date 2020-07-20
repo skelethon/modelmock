@@ -3,7 +3,8 @@
 import abc
 from modelmock.utils import generate_ids, generate_uuids
 
-class AbstractSeqFaker(metaclass=abc.ABCMeta):
+class AbstractSeqFaker():
+  __metaclass__ = abc.ABCMeta
 
   def __init__(self, **kwargs):
     pass
@@ -61,7 +62,8 @@ class IdentifiableSeqFaker(AbstractSeqFaker):
     return self.__ids
 
 
-class AbstractInjector(metaclass=abc.ABCMeta):
+class AbstractInjector():
+  __metaclass__ = abc.ABCMeta
 
   def __init__(self, **kwargs):
     pass

@@ -4,7 +4,6 @@ import argparse
 import json
 import sys
 from pprint import pprint
-from elgoogapi.auth.oauthlib.flow import authorize
 from modelmock.fakers import AgentsFaker, CandidatesFaker, PromocodesFaker, ContractsFaker
 from modelmock.fakers import generate_purchases
 from modelmock.utils import pick_object_fields

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import random
-from modelmock.abc import AbstractSeqFaker, IdentifiableSeqFaker
+from modelmock.abcs import AbstractSeqFaker, IdentifiableSeqFaker
 from modelmock.utils import (
   array_random_split,
   generate_ids,
@@ -185,53 +185,62 @@ class ContractsFaker(IdentifiableSeqFaker):
     _prices = random_fixed_sum_array(_revenue, total_contracts)
 
     # get the extra_descriptors
-    _extra_descriptors = select_descriptor(total_contracts, extra_descriptors)
+    _extra_descriptors = ContractsFaker.select_descriptor(total_contracts, extra_descriptors)
 
     # common kwargs
     _args_tail = dict(flatten=flatten)
 
     # generate each contracts
-    return map(lambda id, price, extra_descriptor: generate_contract(id, price, multiplier, extra_descriptor, **_args_tail),
+    return map(lambda id, price, extra_descriptor: ContractsFaker.generate_contract(id, price, multiplier, extra_descriptor, **_args_tail),
         self.ids, _prices, _extra_descriptors)
 
+  @staticmethod
+  def generate_contract(idx, price, multiplier, extra_descriptor=dict(), extra_generator=None, flatten=True):
+    total_min = get_dict_item(extra_descriptor, 'total_min', 1)
+    total_max = get_dict_item(extra_descriptor, 'total_max', 10)
+    price_choices = get_dict_item(extra_descriptor, 'price_choices', range(2, 6))
+    type_choices = get_dict_item(extra_descriptor, 'type_choices', [1, 2, 3])
+    period_choices = get_dict_item(extra_descriptor, 'period_choices', [12, 24, 36])
 
-def generate_contract(idx, price, multiplier, extra_descriptor=dict(), extra_generator=None, flatten=True):
-  total_min = get_dict_item(extra_descriptor, 'total_min', 1)
-  total_max = get_dict_item(extra_descriptor, 'total_max', 10)
-  price_choices = get_dict_item(extra_descriptor, 'price_choices', range(2, 6))
-  type_choices = get_dict_item(extra_descriptor, 'type_choices', [1, 2, 3])
-  period_choices = get_dict_item(extra_descriptor, 'period_choices', [12, 24, 36])
+    num_extras = random.randint(total_min, total_max)
+    if extra_generator is None:
+      extras = []
+      for idx_extras in range(num_extras):
+        extras.append(dict(
+          fare = random.choice(price_choices) * multiplier,
+          type = random.choice(type_choices),
+          duration = random.choice(period_choices),
+        ))
+    else:
+      extras = map(extra_generator, range(num_extras))
 
-  num_extras = random.randint(total_min, total_max)
-  if extra_generator is None:
-    extras = []
-    for idx_extras in range(num_extras):
-      extras.append(dict(
-        fare = random.choice(price_choices) * multiplier,
-        type = random.choice(type_choices),
-        duration = random.choice(period_choices),
-      ))
-  else:
-    extras = map(extra_generator, range(num_extras))
+    _contract = dict(id=idx, fyp=price * multiplier, extras=extras)
 
-  _contract = dict(id=idx, fyp=price * multiplier, extras=extras)
+    if flatten:
+      return flatten_sub_list(_contract, list_name='extras', prefix='extra')
 
-  if flatten:
-    return flatten_sub_list(_contract)
+    return _contract
 
-  return _contract
+  @staticmethod
+  def select_descriptor(total, descriptors=None):
+    descriptors = [] if descriptors is None else descriptors
+    amounts = list(map(lambda d: d['total'] if 'total' in d else 1, descriptors))
+    for i in propagate_descriptor(total, amounts):
+      if i >= 0:
+        d = descriptors[i]
+        if isinstance(d, dict) and 'options' in d:
+          yield d['options']
+          continue
+      yield ContractsFaker.DEFAULT_EXTRA_DESCRIPTOR
 
 
-def select_descriptor(total, descriptors=None):
-  descriptors = [] if descriptors is None else descriptors
-  amounts = list(map(lambda d: d['total'] if 'total' in d else 1, descriptors))
-  for i in propagate_descriptor(total, amounts):
-    if i >= 0:
-      d = descriptors[i]
-      if isinstance(d, dict) and 'options' in d:
-        yield d['options']
-        continue
-    yield DEFAULT_EXTRA_DESCRIPTOR
+  DEFAULT_EXTRA_DESCRIPTOR = dict(
+      total_min=1,
+      total_max=10,
+      price_choices=[1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 5, 6],
+      type_choices=[1, 2, 3],
+      period_choices=[12, 24, 36, 48, 60, 72, 72, 72, 84, 96],
+  )
 
 
 def propagate_descriptor(total, amounts):
@@ -248,15 +257,6 @@ def propagate_descriptor(total, amounts):
   random.shuffle(box)
 
   return box
-
-
-DEFAULT_EXTRA_DESCRIPTOR = dict(
-    total_min=1,
-    total_max=10,
-    price_choices=[1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 5, 6],
-    type_choices=[1, 2, 3],
-    period_choices=[12, 24, 36, 48, 60, 72, 72, 72, 84, 96],
-)
 
 # [END ContractsFaker]
 

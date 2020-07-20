@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from datetime import datetime, timedelta
-from modelmock.abc import AbstractInjector
+from modelmock.abcs import AbstractInjector
 from modelmock.utils import dictify, isiterable
 import random
 

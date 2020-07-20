@@ -223,14 +223,40 @@ def generate_contract(idx, price, multiplier, extra_descriptor=dict(), extra_gen
 
 
 def select_descriptor(total, descriptors=None):
-  for i in range(total):
-    yield dict(
-      total_min=1,
-      total_max=10,
-      price_choices=[1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 5, 6],
-      type_choices=[1, 2, 3],
-      period_choices=[12, 24, 36, 48, 60, 72, 72, 72, 84, 96],
-    )
+  descriptors = [] if descriptors is None else descriptors
+  amounts = list(map(lambda d: d['total'] if 'total' in d else 1, descriptors))
+  for i in propagate_descriptor(total, amounts):
+    if i >= 0:
+      d = descriptors[i]
+      if isinstance(d, dict) and 'options' in d:
+        yield d['options']
+        continue
+    yield DEFAULT_EXTRA_DESCRIPTOR
+
+
+def propagate_descriptor(total, amounts):
+  box = []
+
+  for k, amount in enumerate(amounts):
+    if amount > 0:
+      box = box + [k for i in range(amount)]
+    else:
+      box.append(k)
+
+  box = box[:total] + [-1 for i in range(total - len(box))]
+
+  random.shuffle(box)
+
+  return box
+
+
+DEFAULT_EXTRA_DESCRIPTOR = dict(
+    total_min=1,
+    total_max=10,
+    price_choices=[1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 5, 6],
+    type_choices=[1, 2, 3],
+    period_choices=[12, 24, 36, 48, 60, 72, 72, 72, 84, 96],
+)
 
 # [END ContractsFaker]
 

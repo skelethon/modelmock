@@ -12,6 +12,7 @@ from modelmock.utils import (
   random_fixed_sum_array,
   wrap_nodes,
   get_dict_item,
+  propagate_patterns,
 )
 from modelmock.user_info import Generator as UserGenerator
 
@@ -20,7 +21,10 @@ from modelmock.user_info import Generator as UserGenerator
 
 class AgentsFaker(IdentifiableSeqFaker):
 
-  def __init__(self, total_agents, level_mappings, id_method=None, id_prefix='A', id_padding=4, id_shuffle=True, subpath='record', locale='en_US', **kwargs):
+  def __init__(self, total_agents, level_mappings, \
+      id_method=None, id_prefix='A', id_padding=4, id_shuffle=True, \
+      subpath='record', locale='en_US', **kwargs):
+
     assert level_mappings is None or isinstance(level_mappings, list), '[level_mappings] must be a list or None'
     self.__level_mappings = level_mappings if level_mappings is not None else []
 
@@ -164,7 +168,10 @@ class PromocodesFaker(AbstractSeqFaker):
 
 class ContractsFaker(IdentifiableSeqFaker):
 
-  def __init__(self, total_contracts, contract_price, multiplier=1, id_method=None, id_prefix='CONTR', id_padding=6, id_shuffle=False, flatten=True, **kwargs):
+  def __init__(self, total_contracts, contract_price, multiplier=1, \
+      id_method=None, id_prefix='CONTR', id_padding=6, id_shuffle=False, \
+      flatten=True, **kwargs):
+
     self.__contract_price = contract_price
     assert isinstance(self.__contract_price, int) and self.__contract_price > 0, '[contract_price] must be a positive integer'
 
@@ -185,17 +192,17 @@ class ContractsFaker(IdentifiableSeqFaker):
     _prices = random_fixed_sum_array(_revenue, total_contracts)
 
     # get the extra_descriptors
-    _extra_descriptors = ContractsFaker.select_descriptor(total_contracts, extra_descriptors)
+    _extra_descriptors = self.__class__.select_descriptor(total_contracts, extra_descriptors)
 
     # common kwargs
     _args_tail = dict(flatten=flatten)
 
     # generate each contracts
-    return map(lambda id, price, extra_descriptor: ContractsFaker.generate_contract(id, price, multiplier, extra_descriptor, **_args_tail),
+    return map(lambda id, price, extra_descriptor: self.__class__.generate_contract(id, price, multiplier, extra_descriptor, **_args_tail),
         self.ids, _prices, _extra_descriptors)
 
-  @staticmethod
-  def generate_contract(id, price, multiplier, extra_descriptor=dict(), extra_generator=None, flatten=True):
+  @classmethod
+  def generate_contract(cls, id, price, multiplier, extra_descriptor=dict(), extra_generator=None, flatten=True):
     total_min = get_dict_item(extra_descriptor, 'total_min', 1)
     total_max = get_dict_item(extra_descriptor, 'total_max', 10)
     price_choices = get_dict_item(extra_descriptor, 'price_choices', range(2, 6))
@@ -221,17 +228,17 @@ class ContractsFaker(IdentifiableSeqFaker):
 
     return _contract
 
-  @staticmethod
-  def select_descriptor(total, descriptors=None):
+  @classmethod
+  def select_descriptor(cls, total, descriptors=None):
     descriptors = [] if descriptors is None else descriptors
     amounts = list(map(lambda d: d['total'] if 'total' in d else 1, descriptors))
-    for i in propagate_descriptor(total, amounts):
+    for i in propagate_patterns(total, amounts):
       if i >= 0:
         d = descriptors[i]
         if isinstance(d, dict) and 'options' in d:
           yield d['options']
           continue
-      yield ContractsFaker.DEFAULT_EXTRA_DESCRIPTOR
+      yield cls.DEFAULT_EXTRA_DESCRIPTOR
 
 
   DEFAULT_EXTRA_DESCRIPTOR = dict(
@@ -241,22 +248,6 @@ class ContractsFaker(IdentifiableSeqFaker):
       type_choices=[1, 2, 3],
       period_choices=[12, 24, 36, 48, 60, 72, 72, 72, 84, 96],
   )
-
-
-def propagate_descriptor(total, amounts):
-  box = []
-
-  for k, amount in enumerate(amounts):
-    if amount > 0:
-      box = box + [k for i in range(amount)]
-    else:
-      box.append(k)
-
-  box = box[:total] + [-1 for i in range(total - len(box))]
-
-  random.shuffle(box)
-
-  return box
 
 # [END ContractsFaker]
 

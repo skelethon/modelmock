@@ -188,7 +188,7 @@ def get_dict_item(data, key, default_value=None):
   return data[key] if key in data else default_value
 
 
-def propagate_patterns(total, amounts):
+def propagate_patterns(total, amounts, shuffle=True):
   box = []
 
   for k, amount in enumerate(amounts):
@@ -199,6 +199,7 @@ def propagate_patterns(total, amounts):
 
   box = box[:total] + [-1 for i in range(total - len(box))]
 
-  random.shuffle(box)
+  if shuffle:
+    random.shuffle(box)
 
   return box

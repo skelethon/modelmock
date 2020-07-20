@@ -5,7 +5,7 @@ import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../src')
 
-from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names
+from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names, propagate_patterns
 
 
 class array_random_split_test(unittest.TestCase):
@@ -102,3 +102,14 @@ class transform_dict_item_names_test(unittest.TestCase):
   def test_transform_dict_item_names_with_not_dicttype_mappings(self):
     self.assertEqual(transform_dict_item_names(dict(p1=1234), None), {'p1': 1234})
     self.assertEqual(transform_dict_item_names(dict(p1=1234), 1234), {'p1': 1234})
+
+
+class propagate_patterns_test(unittest.TestCase):
+
+  def setUp(self):
+    pass
+
+  def test_propagate_patterns_ok(self):
+    self.assertEqual(propagate_patterns(10, [], shuffle=False), [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
+    self.assertEqual(propagate_patterns(10, [2, 3], shuffle=False), [0, 0, 1, 1, 1, -1, -1, -1, -1, -1])
+    self.assertEqual(propagate_patterns(10, [2, 9], shuffle=False), [0, 0, 1, 1, 1, 1, 1, 1, 1, 1])

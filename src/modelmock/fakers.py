@@ -170,21 +170,28 @@ class ContractsFaker(IdentifiableSeqFaker):
 
   def __init__(self, total_contracts, contract_price, multiplier=1, \
       id_method=None, id_prefix='CONTR', id_padding=6, id_shuffle=False, \
+      extra_descriptors=[], extra_generator=None, \
       flatten=True, **kwargs):
 
+    assert isinstance(contract_price, int) and contract_price > 0, '[contract_price] must be a positive integer'
     self.__contract_price = contract_price
-    assert isinstance(self.__contract_price, int) and self.__contract_price > 0, '[contract_price] must be a positive integer'
 
+    assert isinstance(multiplier, int) and multiplier > 0, '[multiplier] must be a positive integer'
     self.__multiplier = multiplier
+
+    self.__extra_descriptors = extra_descriptors
+    self.__extra_generator = extra_generator
+
     self.__flatten = flatten
 
     IdentifiableSeqFaker.__init__(self, total_contracts, id_method, id_prefix, id_padding, id_shuffle)
 
   @property
   def records(self):
-    return self.__generate_contracts(self.total, self.__contract_price, self.__multiplier, flatten=self.__flatten)
+    return self.__generate_contracts(self.total, self.__contract_price, self.__multiplier, \
+      extra_descriptors=self.__extra_descriptors, extra_generator=self.__extra_generator, flatten=self.__flatten)
 
-  def __generate_contracts(self, total_contracts, contract_price, multiplier, extra_descriptors=[], flatten=True):
+  def __generate_contracts(self, total_contracts, contract_price, multiplier, extra_descriptors=[], extra_generator=None, flatten=True):
     # estimate the revenue ~ price * total
     _revenue = contract_price * total_contracts
 
@@ -195,7 +202,7 @@ class ContractsFaker(IdentifiableSeqFaker):
     _extra_descriptors = self.__class__.select_descriptor(total_contracts, extra_descriptors)
 
     # common kwargs
-    _args_tail = dict(flatten=flatten)
+    _args_tail = dict(extra_generator=extra_generator, flatten=flatten)
 
     # generate each contracts
     return map(lambda id, price, extra_descriptor: self.__class__.generate_contract(id, price, multiplier, extra_descriptor, **_args_tail),

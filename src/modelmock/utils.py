@@ -179,3 +179,9 @@ def transform_dict_item_names(data, mappings={}):
     else:
       _newdata[key] = data[key]
   return _newdata
+
+
+def get_dict_item(data, key, default_value=None):
+  if not isinstance(data, dict):
+    return None
+  return data[key] if key in data else default_value

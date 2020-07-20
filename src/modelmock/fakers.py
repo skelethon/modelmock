@@ -11,6 +11,7 @@ from modelmock.utils import (
   flatten_sub_list,
   random_fixed_sum_array,
   wrap_nodes,
+  get_dict_item,
 )
 from modelmock.user_info import Generator as UserGenerator
 
@@ -176,36 +177,60 @@ class ContractsFaker(IdentifiableSeqFaker):
   def records(self):
     return self.__generate_contracts(self.total, self.__contract_price, self.__multiplier, flatten=self.__flatten)
 
-  def __generate_contracts(self, total_contracts, contract_price, multiplier, flatten=True):
+  def __generate_contracts(self, total_contracts, contract_price, multiplier, extra_descriptors=[], flatten=True):
     # estimate the revenue ~ price * total
     _revenue = contract_price * total_contracts
 
     # randomize the prices (length: total_contracts)
     _prices = random_fixed_sum_array(_revenue, total_contracts)
 
+    # get the extra_descriptors
+    _extra_descriptors = select_descriptor(total_contracts, extra_descriptors)
+
     # common kwargs
-    _args_tail = dict(multiplier=multiplier, flatten=flatten)
+    _args_tail = dict(flatten=flatten)
 
     # generate each contracts
-    return map(lambda idx, price: self.__generate_contract(idx, price, **_args_tail), self.ids, _prices)
+    return map(lambda id, price, extra_descriptor: generate_contract(id, price, multiplier, extra_descriptor, **_args_tail),
+        self.ids, _prices, _extra_descriptors)
 
 
-  def __generate_contract(self, idx, price, multiplier, max_extras=5, flatten=True, extra_generator=None):
-      num_extras = random.randint(1, max_extras)
-      if extra_generator is None:
-        extras = []
-        for idx_extras in range(num_extras):
-          extras.append(dict(
-            fare = random.randint(1,5) * multiplier,
-            type = random.randint(1,3),
-            duration = random.randint(1, 12),
-          ))
-      else:
-        extras = map(extra_generator, range(num_extras))
-      _contract = dict(id=idx, fyp=price * multiplier, extras=extras)
-      if flatten:
-        return flatten_sub_list(_contract)
-      return _contract
+def generate_contract(idx, price, multiplier, extra_descriptor=dict(), extra_generator=None, flatten=True):
+  total_min = get_dict_item(extra_descriptor, 'total_min', 1)
+  total_max = get_dict_item(extra_descriptor, 'total_max', 10)
+  price_choices = get_dict_item(extra_descriptor, 'price_choices', range(2, 6))
+  type_choices = get_dict_item(extra_descriptor, 'type_choices', [1, 2, 3])
+  period_choices = get_dict_item(extra_descriptor, 'period_choices', [12, 24, 36])
+
+  num_extras = random.randint(total_min, total_max)
+  if extra_generator is None:
+    extras = []
+    for idx_extras in range(num_extras):
+      extras.append(dict(
+        fare = random.choice(price_choices) * multiplier,
+        type = random.choice(type_choices),
+        duration = random.choice(period_choices),
+      ))
+  else:
+    extras = map(extra_generator, range(num_extras))
+
+  _contract = dict(id=idx, fyp=price * multiplier, extras=extras)
+
+  if flatten:
+    return flatten_sub_list(_contract)
+
+  return _contract
+
+
+def select_descriptor(total, descriptors=None):
+  for i in range(total):
+    yield dict(
+      total_min=1,
+      total_max=10,
+      price_choices=[1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 5, 6],
+      type_choices=[1, 2, 3],
+      period_choices=[12, 24, 36, 48, 60, 72, 72, 72, 84, 96],
+    )
 
 # [END ContractsFaker]
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import random
-from modelmock.abcs import AbstractSeqFaker, IdentifiableSeqFaker
+from modelmock.abcs import AbstractSeqFaker, IdentifiableSeqFaker, AbstractInjector
 from modelmock.utils import (
   array_random_split,
   generate_ids,
@@ -15,6 +15,30 @@ from modelmock.utils import (
   propagate_patterns,
 )
 from modelmock.user_info import Generator as UserGenerator
+
+
+# [BEGIN EntitiesFaker]
+
+class EntitiesFaker(IdentifiableSeqFaker):
+
+  def __init__(self, total, id_method=None, id_prefix='A', id_padding=4, id_shuffle=True, injectors=[], **kwargs):
+
+    IdentifiableSeqFaker.__init__(self, total, id_method, id_prefix, id_padding, id_shuffle)
+
+    self.__injectors = []
+    for injector in injectors:
+      assert isinstance(injector, AbstractInjector)
+      self.__injectors.append(injector)
+
+  @property
+  def records(self):
+    entities = wrap_nodes(self.ids, field_name='id')
+    for i, entity in enumerate(entities):
+      for injector in self.__injectors:
+        entity = injector.inject(entity)
+      yield entity
+
+# [END EntitiesFaker]
 
 
 # [BEGIN AgentsFaker]

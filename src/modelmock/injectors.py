@@ -23,11 +23,16 @@ class DateTimeInjector(AbstractInjector):
     assert isinstance(self.__begin, datetime), 'begin must be a datetime'
 
   def inject(self, data):
-    if isiterable(data):
-      for node in data:
-        yield self.__gen_times(node)
-    else:
+    if isinstance(data, dict):
       return self.__gen_times(data)
+    elif isiterable(data):
+      return self.__inject(data)
+    else:
+      return data
+
+  def __inject(self, nodes):
+      for node in nodes:
+        yield self.__gen_times(node)
 
   def __gen_times(self, data):
     data = dictify(data)

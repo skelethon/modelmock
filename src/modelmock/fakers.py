@@ -4,7 +4,6 @@ import random
 from modelmock.abcs import AbstractSeqFaker, IdentifiableSeqFaker, AbstractInjector
 from modelmock.utils import (
   array_random_split,
-  generate_ids,
   generatorify,
   list_to_dict,
   flatten_sub_dict,
@@ -153,11 +152,10 @@ class CandidatesFaker(IdentifiableSeqFaker):
 
 # [BEGIN PromocodesFaker]
 
-class PromocodesFaker(AbstractSeqFaker):
+class PromocodesFaker(IdentifiableSeqFaker):
 
-  def __init__(self, total_codes, spread_limit=5, **kwargs):
-    assert isinstance(total_codes, int) and total_codes > 0, '[total_codes] must be a positive integer'
-    self.__total_codes = total_codes
+  def __init__(self, total_codes, id_method=None, id_prefix='PC', id_padding=10, id_shuffle=False, spread_limit=5, **kwargs):
+    IdentifiableSeqFaker.__init__(self, total_codes, id_method, id_prefix, id_padding, id_shuffle)
 
     assert isinstance(spread_limit, int) and spread_limit > 0 and spread_limit <= total_codes, '[spread_limit] must be a positive integer'
     self.__spread_limit = spread_limit
@@ -165,13 +163,8 @@ class PromocodesFaker(AbstractSeqFaker):
     self.__referral_targets = dict()
 
   @property
-  def total(self):
-    return self.__total_codes
-
-  @property
   def records(self):
-    _procodes = generate_ids(self.__total_codes, prefix='PC', padding=10)
-    for _procode in _procodes:
+    for _procode in self.ids:
       _referral_code = self.__pick_a_referral_code()
       if _referral_code is not None:
         self.__referral_targets[_referral_code].append(_procode)

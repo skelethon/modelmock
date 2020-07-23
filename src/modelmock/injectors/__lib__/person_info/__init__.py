@@ -3,6 +3,7 @@
 import importlib
 import numpy as np
 from .data import default_personal_lookup
+from modelmock.utils import isiterable
 from unidecode import unidecode
 
 SEED_PACKAGE_PREFIX = '.data.__seeds_'
@@ -67,7 +68,17 @@ class PersonInfoInjector(object):
     return _phone
 
 
-  def inject(self, nodes):
+  def __inject_by_loop(self, nodes):
     for node in nodes:
       node.update(self._generate())
       yield node
+
+
+  def inject(self, data):
+    if isinstance(data, dict):
+      data.update(self._generate())
+      return data
+    elif isiterable(data):
+      return self.__inject_by_loop(data)
+    else:
+      return data

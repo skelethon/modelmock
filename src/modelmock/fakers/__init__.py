@@ -20,9 +20,12 @@ from modelmock.user_info import Generator as UserGenerator
 
 class EntitiesFaker(IdentifiableSeqFaker):
 
-  def __init__(self, total, id_method=None, id_prefix='A', id_padding=4, id_shuffle=True, injectors=[], **kwargs):
+  def __init__(self, total, id_method=None, id_prefix='A', id_padding=4, id_shuffle=True, id_field_name='id', injectors=[], **kwargs):
 
     IdentifiableSeqFaker.__init__(self, total, id_method, id_prefix, id_padding, id_shuffle)
+
+    assert isinstance(id_field_name, str) and len(id_field_name) > 0, '[id_field_name] must be a non-empty string'
+    self.__id_field_name = id_field_name
 
     self.__injectors = []
     for injector in injectors:
@@ -31,7 +34,7 @@ class EntitiesFaker(IdentifiableSeqFaker):
 
   @property
   def records(self):
-    entities = wrap_nodes(self.ids, field_name='id')
+    entities = wrap_nodes(self.ids, field_name=self.__id_field_name)
     for i, entity in enumerate(entities):
       for injector in self.__injectors:
         entity = injector.inject(entity)
@@ -281,11 +284,11 @@ class ContractsFaker(IdentifiableSeqFaker):
 class PurchasesFaker(AbstractSeqFaker):
 
   def __init__(self, agents_faker, contracts_faker, **kwargs):
+    assert isinstance(agents_faker, AgentsFaker), '[agents_faker] must be an instance of AgentsFaker type'
     self.__agents_faker = agents_faker
-    assert isinstance(self.__agents_faker, AgentsFaker), '[agents_faker] must be an instance of AgentsFaker type'
 
+    assert isinstance(contracts_faker, ContractsFaker), '[contracts_faker] must be an instance of ContractsFaker type'
     self.__contracts_faker = contracts_faker
-    assert isinstance(self.__contracts_faker, ContractsFaker), '[contracts_faker] must be an instance of ContractsFaker type'
 
   @property
   def total(self):

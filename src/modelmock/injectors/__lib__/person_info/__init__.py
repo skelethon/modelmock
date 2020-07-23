@@ -18,7 +18,7 @@ class PersonInfoInjector(object):
     self.__faker_seeds = default_personal_lookup
     if self.__locale is not None:
       try:
-        _seeds_collection = importlib.import_module(SEED_PACKAGE_PREFIX + self.__locale, package=__name__)
+        _seeds_collection = importlib.import_module(SEED_PACKAGE_PREFIX + self.__locale, package=__package__)
         self.__faker_seeds = _seeds_collection.personal_lookup
       except ModuleNotFoundError as not_found_err:
         raise not_found_err

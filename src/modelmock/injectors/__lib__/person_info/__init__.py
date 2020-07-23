@@ -5,7 +5,7 @@ import numpy as np
 from .data import default_personal_lookup
 from unidecode import unidecode
 
-SEED_PACKAGE_PREFIX = 'modelmock.injectors.__lib__.person_info.data.__seeds_'
+SEED_PACKAGE_PREFIX = '.data.__seeds_'
 
 class PersonInfoInjector(object):
 
@@ -17,7 +17,7 @@ class PersonInfoInjector(object):
     self.__faker_seeds = default_personal_lookup
     if self.__locale is not None:
       try:
-        _seeds_collection = importlib.import_module(SEED_PACKAGE_PREFIX + self.__locale)
+        _seeds_collection = importlib.import_module(SEED_PACKAGE_PREFIX + self.__locale, package=__name__)
         self.__faker_seeds = _seeds_collection.personal_lookup
       except ModuleNotFoundError as not_found_err:
         raise not_found_err

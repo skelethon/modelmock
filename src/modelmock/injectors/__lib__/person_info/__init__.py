@@ -2,10 +2,10 @@
 
 import importlib
 import numpy as np
-from modelmock.user_info.data import default_personal_lookup
+from .data import default_personal_lookup
 from unidecode import unidecode
 
-SEED_PACKAGE_PREFIX = 'modelmock.user_info.data.__seeds_'
+SEED_PACKAGE_PREFIX = 'modelmock.injectors.__lib__.person_info.data.__seeds_'
 
 class PersonInfoInjector(object):
 

@@ -13,7 +13,7 @@ from modelmock.utils import (
   get_dict_item,
   propagate_patterns,
 )
-from modelmock.user_info import PersonInfoInjector
+from modelmock.injectors import PersonInfoInjector
 
 
 # [BEGIN EntitiesFaker]
@@ -331,9 +331,10 @@ def generate_contracts(total_contracts, contract_price, multiplier, **kwargs):
   return ContractsFaker(**myargs).records
 
 
-def generate_purchases(total_agents, total_contracts, contract_price, multiplier, flatten=True,
+def generate_purchases(total_agents, total_contracts, contract_price, multiplier, extra_descriptors=[],
     agent_id_method=None, agent_id_prefix='AGENT', agent_id_padding=6, agent_id_shuffle=True,
-    contract_id_method=None, contract_id_prefix='CONTR', contract_id_padding=6, contract_id_shuffle=True):
+    contract_id_method=None, contract_id_prefix='CONTR', contract_id_padding=6, contract_id_shuffle=True,
+    flatten=True):
 
   agents_faker = AgentsFaker(total_agents, [],
       id_method=agent_id_method,
@@ -346,6 +347,7 @@ def generate_purchases(total_agents, total_contracts, contract_price, multiplier
       id_prefix=contract_id_prefix,
       id_padding=contract_id_padding,
       id_shuffle=contract_id_shuffle,
+      extra_descriptors=extra_descriptors,
       flatten=flatten)
 
   return PurchasesFaker(agents_faker, contracts_faker).records

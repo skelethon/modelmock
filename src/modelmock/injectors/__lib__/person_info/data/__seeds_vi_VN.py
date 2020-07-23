@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class personal_lookup:
     first_names_male = (
             'An', 'Anh',

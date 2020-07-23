@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
-import abc
+from abc import ABCMeta, abstractproperty, abstractmethod
 from modelmock.utils import generate_ids, generate_uuids
 
 class AbstractSeqFaker():
-  __metaclass__ = abc.ABCMeta
+  __metaclass__ = ABCMeta
 
   def __init__(self, **kwargs):
     pass
 
-  @abc.abstractproperty
+  @abstractproperty
   def total(self):
     pass
 
-  @abc.abstractproperty
+  @abstractproperty
   def records(self):
     pass
 
@@ -63,12 +63,12 @@ class IdentifiableSeqFaker(AbstractSeqFaker):
 
 
 class AbstractInjector():
-  __metaclass__ = abc.ABCMeta
+  __metaclass__ = ABCMeta
 
   def __init__(self, **kwargs):
     pass
 
-  @abc.abstractmethod
+  @abstractmethod
   def inject(self, data):
     pass
 

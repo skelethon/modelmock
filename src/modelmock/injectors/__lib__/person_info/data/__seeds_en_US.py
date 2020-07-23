@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #
 # Copied from: https://github.com/joke2k/faker/blob/master/faker/providers/person/en_US/__init__.py
 #

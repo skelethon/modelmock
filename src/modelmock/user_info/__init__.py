@@ -7,7 +7,7 @@ from unidecode import unidecode
 
 SEED_PACKAGE_PREFIX = 'modelmock.user_info.data.__seeds_'
 
-class Generator(object):
+class PersonInfoInjector(object):
 
   def __init__(self, **kwargs):
     self.__uniqset_emails = []
@@ -67,7 +67,7 @@ class Generator(object):
     return _phone
 
 
-  def inject_user_info(self, nodes):
+  def inject(self, nodes):
     for node in nodes:
       node.update(self._generate())
       yield node

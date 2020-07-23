@@ -13,7 +13,7 @@ from modelmock.utils import (
   get_dict_item,
   propagate_patterns,
 )
-from modelmock.user_info import Generator as UserGenerator
+from modelmock.user_info import PersonInfoInjector
 
 
 # [BEGIN EntitiesFaker]
@@ -57,17 +57,17 @@ class AgentsFaker(IdentifiableSeqFaker):
     assert subpath is None or isinstance(subpath, str) and len(subpath) > 0, '[subpath] must be a non-empty string or None'
     self.__subpath = subpath
 
-    self.__user_info_faker = UserGenerator(locale=locale)
+    self.__person_info_injector = PersonInfoInjector(locale=locale)
 
     IdentifiableSeqFaker.__init__(self, total_agents, id_method, id_prefix, id_padding, id_shuffle)
 
   @property
   def records(self):
-    return self._generate_agents(self.ids, self.__level_mappings, self.__user_info_faker, subpath=self.__subpath)
+    return self._generate_agents(self.ids, self.__level_mappings, self.__person_info_injector, subpath=self.__subpath)
 
   @classmethod
   def _generate_agents(cls, agent_ids, level_mappings, user_info_faker, subpath='record'):
-    _records = user_info_faker.inject_user_info(
+    _records = user_info_faker.inject(
       flatten_sub_dict(
         generatorify(
           cls._expand_tree_path(
@@ -144,11 +144,11 @@ class CandidatesFaker(IdentifiableSeqFaker):
 
   def __init__(self, total_candidates, id_method=None, id_prefix='CAN', id_padding=10, id_shuffle=False, locale='en', **kwargs):
     IdentifiableSeqFaker.__init__(self, total_candidates, id_method, id_prefix, id_padding, id_shuffle)
-    self.__user_info_faker = UserGenerator(locale=locale)
+    self.__person_info_injector = PersonInfoInjector(locale=locale)
 
   @property
   def records(self):
-    return self.__user_info_faker.inject_user_info(wrap_nodes(self.ids, field_name='id'))
+    return self.__person_info_injector.inject(wrap_nodes(self.ids, field_name='id'))
 
 # [END CandidatesFaker]
 

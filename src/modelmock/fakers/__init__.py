@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import random
-from modelmock.abcs import AbstractSeqFaker, IdentifiableSeqFaker, AbstractInjector
+from modelmock.bases.abcs import AbstractSeqFaker, IdentifiableSeqFaker, AbstractInjector
 from modelmock.utils import (
   array_random_split,
   generatorify,
@@ -13,7 +13,7 @@ from modelmock.utils import (
   get_dict_item,
   propagate_patterns,
 )
-from modelmock.injectors import PersonInfoInjector
+from modelmock.injectors.impl.person_info import PersonInfoInjector
 
 
 # [BEGIN EntitiesFaker]

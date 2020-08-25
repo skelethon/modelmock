@@ -15,8 +15,8 @@ setup_args = dict(
   classifiers = [],
   install_requires = open("requirements.txt").readlines(),
   python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*",
-  package_dir = {'':'lib'},
-  packages = setuptools.find_packages('lib'),
+  package_dir = {'':'src'},
+  packages = setuptools.find_packages('src'),
 )
 
 if 'MODELMOCK_PRE_RELEASE' in os.environ:

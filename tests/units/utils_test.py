@@ -2,6 +2,7 @@
 
 import unittest
 import os, sys
+import itertools
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../src')
 
@@ -17,6 +18,18 @@ class array_random_split_test(unittest.TestCase):
     _arr = range(20)
     _chunks = array_random_split(_arr, 5)
     self.assertEqual(len(_chunks), 5)
+
+  def test_array_random_split_with_number_of_subarrays_greater_than_array_size(self):
+    _arr = [1, 2, 3]
+    _chunks = array_random_split(_arr, 5, empty_accepted=True)
+    self.assertEqual(len(_chunks), 5)
+    self.assertEqual(list(itertools.chain.from_iterable(_chunks)), _arr)
+
+  def test_array_random_split_empty_array_to_5_subarrays(self):
+    _arr = []
+    _chunks = array_random_split(_arr, 3, empty_accepted=True)
+    self.assertEqual(len(_chunks), 3)
+    self.assertEqual(list(itertools.chain.from_iterable(_chunks)), _arr)
 
 
 class flatten_sub_list_test(unittest.TestCase):

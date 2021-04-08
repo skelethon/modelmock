@@ -12,7 +12,8 @@ def array_random_split(arr, n, empty_accepted=False):
     if i == n-1:
       ret.append(arr)
     else:
-      subarr_len = random.randint(first, arr_len - (n - i - 1))
+      max_bound = arr_len - (n - i - 1)
+      subarr_len = random.randint(first, max_bound) if max_bound >= first else 0
       ret.append(arr[:subarr_len])
       arr = arr[subarr_len:]
       arr_len = len(arr)

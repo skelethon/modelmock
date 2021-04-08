@@ -7,6 +7,8 @@ import shortuuid
 def array_random_split(arr, n, empty_accepted=False):
   ret = []
   arr_len = len(arr)
+  if not(empty_accepted or (n <= arr_len)):
+    raise ValueError("n must be less than array size")
   first = 0 if empty_accepted else 1
   for i in range(n):
     if i == n-1:

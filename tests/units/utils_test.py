@@ -34,14 +34,14 @@ class array_random_split_test(unittest.TestCase):
   def test_array_random_split_with_number_of_subarrays_equals_to_array_size(self):
     _arr = [1, 2, 3, 4, 5]
     for _ in range(3):
-      _chunks = array_random_split(_arr, 5)
+      _chunks = array_random_split(_arr, 5, empty_accepted=False)
       self.assertEqual(len(_chunks), 5)
       self.assertEqual(_chunks, [[1], [2], [3], [4], [5]])
 
   def test_array_random_split_with_number_of_subarrays_less_than_array_size(self):
     _arr = [1, 2, 3, 4]
     with self.assertRaises(ValueError):
-      array_random_split(_arr, 5)
+      array_random_split(_arr, 5, empty_accepted=False)
 
 
 class flatten_sub_list_test(unittest.TestCase):

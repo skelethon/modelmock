@@ -138,3 +138,9 @@ class propagate_patterns_test(unittest.TestCase):
     self.assertEqual(propagate_patterns(10, [], shuffle=False), [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
     self.assertEqual(propagate_patterns(10, [2, 3], shuffle=False), [0, 0, 1, 1, 1, -1, -1, -1, -1, -1])
     self.assertEqual(propagate_patterns(10, [2, 9], shuffle=False), [0, 0, 1, 1, 1, 1, 1, 1, 1, 1])
+
+
+class random_fixed_sum_array__test(unittest.TestCase):
+
+  def setUp(self):
+    pass

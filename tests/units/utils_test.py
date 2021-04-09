@@ -6,7 +6,7 @@ import itertools
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../src')
 
-from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names, propagate_patterns
+from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names, propagate_patterns, pick_object_fields
 
 
 class array_random_split_test(unittest.TestCase):
@@ -144,3 +144,37 @@ class random_fixed_sum_array__test(unittest.TestCase):
 
   def setUp(self):
     pass
+
+# class object to test pick object fields
+
+class pick_object_fields_test(unittest.TestCase):
+
+  def setUp(self):
+    pass
+
+  def test_pick_object_fields_ok(self):
+    class Person:
+      name = "tung"
+      age = 23
+      country = "QN"
+    _field_names = ["name","age","country"]
+    self.assertEqual(pick_object_fields(Person,_field_names),dict(name="tung",age=23,country="QN"))
+
+  def test_pick_object_fields_to_field_not_have_in_obj(self):
+    class Person:
+      name = "tung"
+      age = 23
+      country = "QN"
+    self.assertEqual(pick_object_fields(Person,[]),Person)
+    self.assertEqual(pick_object_fields(Person,["names"]), {})
+    self.assertEqual(pick_object_fields(Person, ["names","age","country"]),dict(age=23,country="QN"))
+
+  def test_pick_object_fields_to_obj_is_dict(self):
+    _obj = {"name":"tung","age":23,"country":"QN"}
+    self.assertEqual(pick_object_fields(_obj,["names"]),{})
+    self.assertEqual(pick_object_fields(_obj,["name"]),dict(name="tung"))
+    self.assertEqual(pick_object_fields(_obj,["name","age","country"]),dict(name="tung",age=23,country="QN"))
+
+  def test_pick_object_fields_to_obj_is_undefined(self):
+    self.assertEqual(pick_object_fields(None,[]),None)
+    self.assertEqual(pick_object_fields(None,["name"]),{})

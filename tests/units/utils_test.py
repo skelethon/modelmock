@@ -129,6 +129,15 @@ class transform_dict_item_names_test(unittest.TestCase):
     self.assertEqual(transform_dict_item_names(dict(p1=1234), None), {'p1': 1234})
     self.assertEqual(transform_dict_item_names(dict(p1=1234), 1234), {'p1': 1234})
 
+  def test_transform_dict_item_names_without_mappings(self):
+    record = dict(p1=1024, p2='Hello world', p3=True, p4=None, p5=[1, 2, 3])
+    self.assertEqual(transform_dict_item_names(record), {
+      'p1': 1024,
+      'p2': 'Hello world',
+      'p3': True,
+      'p4': None,
+      'p5': [1, 2, 3],
+      })
 
 class propagate_patterns_test(unittest.TestCase):
 
@@ -139,6 +148,15 @@ class propagate_patterns_test(unittest.TestCase):
     self.assertEqual(propagate_patterns(10, [], shuffle=False), [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
     self.assertEqual(propagate_patterns(10, [2, 3], shuffle=False), [0, 0, 1, 1, 1, -1, -1, -1, -1, -1])
     self.assertEqual(propagate_patterns(10, [2, 9], shuffle=False), [0, 0, 1, 1, 1, 1, 1, 1, 1, 1])
+
+  def test_propagate_patterns_to_total_less_than_amounts_size(self):
+    self.assertEqual(propagate_patterns(2, [1,2,3], shuffle=False), [0, 1])
+    self.assertEqual(propagate_patterns(0, [1,2,3], shuffle=False), [])
+
+  def test_propagate_patterns_to_have_negative_in_amounts(self):
+    self.assertEqual(propagate_patterns(10, [1,-2,3], shuffle=False), [0, 1, 2, 2, 2,-1, -1, -1, -1, -1])
+    self.assertEqual(propagate_patterns(10, [-2,-3], shuffle=False), [0, 1, -1, -1, -1, -1, -1, -1, -1, -1])
+    self.assertEqual(propagate_patterns(2, [-1,-2,-3],shuffle=False), [0,1])
 
 
 class random_fixed_sum_array__test(unittest.TestCase):

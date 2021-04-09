@@ -95,6 +95,8 @@ def list_to_dict(nodes, key_name='index'):
 def random_fixed_sum_array(_sum, n):
   mean = _sum // n
   variance = int(0.5 * mean)
+  if variance == 0:
+    raise ValueError('variance must be greater than 0')
 
   min_v = mean - variance
   max_v = mean + variance

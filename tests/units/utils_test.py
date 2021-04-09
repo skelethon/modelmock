@@ -3,10 +3,11 @@
 import unittest
 import os, sys
 import itertools
+import random
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../src')
 
-from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names, propagate_patterns
+from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names, propagate_patterns, random_fixed_sum_array
 
 
 class array_random_split_test(unittest.TestCase):
@@ -158,4 +159,30 @@ class propagate_patterns_test(unittest.TestCase):
     self.assertEqual(propagate_patterns(2, [-1,-2,-3],shuffle=False), [0,1])
 
 
+class random_fixed_sum_array__test(unittest.TestCase):
 
+  def setUp(self):
+    pass
+
+  # when mean<2, the process will not finish
+  def test_mean_is_zero(self):
+    for _ in range(10):
+      n = random.randint(1, 50)
+      s = int(n*random.random()*2)
+      # s = random.randint(1, 50)
+      # n = s//2 + random.randint(1, 50)
+      self.assertRaises(ValueError, random_fixed_sum_array, s, n)
+
+  """
+  s>0 & n>0: must satisfy 2 conditions
+    - n = len(arr)
+    - s = sum(arr)
+  """
+  def test_sum_and_n_greater_than_zero(self):
+    for _ in range(10):
+      n = random.randint(1, 50)
+      s = n*2 + random.randint(0, 50)
+      arr = random_fixed_sum_array(s, n)
+
+      self.assertEqual(sum(arr), s)
+      self.assertEqual(len(arr), n)

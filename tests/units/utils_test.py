@@ -3,10 +3,11 @@
 import unittest
 import os, sys
 import itertools
+import random
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/../../src')
 
-from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names, propagate_patterns
+from modelmock.utils import array_random_split, flatten_sub_list, set_deep_child, transform_dict_item_names, propagate_patterns, pick_object_fields, random_fixed_sum_array
 
 
 class array_random_split_test(unittest.TestCase):
@@ -128,6 +129,15 @@ class transform_dict_item_names_test(unittest.TestCase):
     self.assertEqual(transform_dict_item_names(dict(p1=1234), None), {'p1': 1234})
     self.assertEqual(transform_dict_item_names(dict(p1=1234), 1234), {'p1': 1234})
 
+  def test_transform_dict_item_names_without_mappings(self):
+    record = dict(p1=1024, p2='Hello world', p3=True, p4=None, p5=[1, 2, 3])
+    self.assertEqual(transform_dict_item_names(record), {
+      'p1': 1024,
+      'p2': 'Hello world',
+      'p3': True,
+      'p4': None,
+      'p5': [1, 2, 3],
+      })
 
 class propagate_patterns_test(unittest.TestCase):
 
@@ -139,8 +149,73 @@ class propagate_patterns_test(unittest.TestCase):
     self.assertEqual(propagate_patterns(10, [2, 3], shuffle=False), [0, 0, 1, 1, 1, -1, -1, -1, -1, -1])
     self.assertEqual(propagate_patterns(10, [2, 9], shuffle=False), [0, 0, 1, 1, 1, 1, 1, 1, 1, 1])
 
+  def test_propagate_patterns_to_total_less_than_amounts_size(self):
+    self.assertEqual(propagate_patterns(2, [1,2,3], shuffle=False), [0, 1])
+    self.assertEqual(propagate_patterns(0, [1,2,3], shuffle=False), [])
+
+  def test_propagate_patterns_to_have_negative_in_amounts(self):
+    self.assertEqual(propagate_patterns(10, [1,-2,3], shuffle=False), [0, 1, 2, 2, 2,-1, -1, -1, -1, -1])
+    self.assertEqual(propagate_patterns(10, [-2,-3], shuffle=False), [0, 1, -1, -1, -1, -1, -1, -1, -1, -1])
+    self.assertEqual(propagate_patterns(2, [-1,-2,-3],shuffle=False), [0,1])
+
 
 class random_fixed_sum_array__test(unittest.TestCase):
 
   def setUp(self):
     pass
+
+  # when mean<2, the process will not finish
+  def test_mean_is_zero(self):
+    for _ in range(10):
+      n = random.randint(1, 50)
+      s = int(n*random.random()*2)
+      # s = random.randint(1, 50)
+      # n = s//2 + random.randint(1, 50)
+      self.assertRaises(ValueError, random_fixed_sum_array, s, n)
+
+  """
+  s>0 & n>0: must satisfy 2 conditions
+    - n = len(arr)
+    - s = sum(arr)
+  """
+  def test_sum_and_n_greater_than_zero(self):
+    for _ in range(10):
+      n = random.randint(1, 50)
+      s = n*2 + random.randint(0, 50)
+      arr = random_fixed_sum_array(s, n)
+
+      self.assertEqual(sum(arr), s)
+      self.assertEqual(len(arr), n)
+
+# class object to test pick object fields
+class pick_object_fields_test(unittest.TestCase):
+
+  def setUp(self):
+    pass
+
+  def test_pick_object_fields_ok(self):
+    class Person:
+      name = "tung"
+      age = 23
+      country = "QN"
+    _field_names = ["name","age","country"]
+    self.assertEqual(pick_object_fields(Person,_field_names),dict(name="tung",age=23,country="QN"))
+
+  def test_pick_object_fields_to_field_not_have_in_obj(self):
+    class Person:
+      name = "tung"
+      age = 23
+      country = "QN"
+    self.assertEqual(pick_object_fields(Person,[]),Person)
+    self.assertEqual(pick_object_fields(Person,["names"]), {})
+    self.assertEqual(pick_object_fields(Person, ["names","age","country"]),dict(age=23,country="QN"))
+
+  def test_pick_object_fields_to_obj_is_dict(self):
+    _obj = {"name":"tung","age":23,"country":"QN"}
+    self.assertEqual(pick_object_fields(_obj,["names"]),{})
+    self.assertEqual(pick_object_fields(_obj,["name"]),dict(name="tung"))
+    self.assertEqual(pick_object_fields(_obj,["name","age","country"]),dict(name="tung",age=23,country="QN"))
+
+  def test_pick_object_fields_to_obj_is_undefined(self):
+    self.assertEqual(pick_object_fields(None,[]),None)
+    self.assertEqual(pick_object_fields(None,["name"]),{})
